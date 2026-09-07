@@ -48,6 +48,7 @@ If you are not on Ubuntu, or you would rather not install the toolchain and an `
    - Notes:
       - Build knobs are passed straight through from your environment, e.g. `BUILD_KODI=y ./docker-build.sh rg353m` or `DEBIAN_CODE_NAME=sid BUILD_ARMHF=n ./docker-build.sh rgb30`.
       - `ccache` (`Arkbuild_ccache/`), the debootstrap/package cache (`Arkbuild_package_cache/`) and the `apt-cacher-ng` store (a `darkos-aptcache` Docker volume) all persist between runs, so incremental rebuilds stay in the ~3 hour range.
+      - The Linaro cross toolchain is downloaded once into `prebuilts/` (git-ignored) unless you already have it at `/opt/toolchains/`.
       - If the container reports that the `qemu-aarch64` binfmt handler could not be registered, run this once on the host and retry: `docker run --privileged --rm tonistiigi/binfmt --install arm64,arm`
 
 **Notes**

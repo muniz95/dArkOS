@@ -21,8 +21,11 @@ export DARKOS_IN_DOCKER=1
 # the standard ELF aarch64 / arm signatures (see /usr/lib/binfmt.d/qemu-*.conf).
 register_binfmt() {
   local name="$1" reg="$2"
+  [ -w /proc/sys/fs/binfmt_misc/register ] || return 0
   [ -e "/proc/sys/fs/binfmt_misc/${name}" ] && return 0
-  printf '%s' "${reg}" > /proc/sys/fs/binfmt_misc/register 2>/dev/null
+  if ! { printf '%s' "${reg}" 2>/dev/null > /proc/sys/fs/binfmt_misc/register; } 2>/dev/null; then
+    log "WARNING: could not register ${name} binfmt handler"
+  fi
 }
 
 if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then

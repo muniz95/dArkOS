@@ -10,6 +10,7 @@ build.log*
 builddevenv.log
 mnt/
 odroidgoA-4.4.y/
+prebuilts/
 rg351/
 *.img
 .img.*
