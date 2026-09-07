@@ -1,22 +1,30 @@
 #!/bin/bash
 
 echo -e "Making sure necessary tools and ccache are available for the build....\n\n"
-# Ensure some build tools are installed and ready
-if [ -z $(dpkg --print-foreign-architectures | grep i386) ]; then
-  sudo dpkg --add-architecture i386
-fi
-sudo apt -y update
-for NEEDED_TOOL in bc btrfs-progs build-essential bison flex ccache curl debconf-utils debootstrap device-tree-compiler dosfstools e2fsprogs eatmydata gcc gdisk jq lib32stdc++6 libc6-i386 libncurses5-dev libssl-dev lz4 lzop p7zip-full parted python-is-python3 qemu-user-static zlib1g:i386 xfsprogs
-do
-  apt list --installed 2>/dev/null | grep -q "$NEEDED_TOOL"
-  if [[ $? != "0" ]]; then
-    sudo apt -y install ${NEEDED_TOOL}
-    verify_action
+# Ensure some build tools are installed and ready.
+# In the Docker build environment (docker/Dockerfile) every tool below is
+# already baked into the image, so skip the host package management entirely.
+if [ ! -f /.dockerenv ]; then
+  if [ -z $(dpkg --print-foreign-architectures | grep i386) ]; then
+    sudo dpkg --add-architecture i386
   fi
-done
+  sudo apt -y update
+  for NEEDED_TOOL in bc btrfs-progs build-essential bison flex ccache curl debconf-utils debootstrap device-tree-compiler dosfstools e2fsprogs eatmydata gcc gdisk jq lib32stdc++6 libc6-i386 libncurses5-dev libssl-dev lz4 lzop p7zip-full parted python-is-python3 qemu-user-static zlib1g:i386 xfsprogs
+  do
+    apt list --installed 2>/dev/null | grep -q "$NEEDED_TOOL"
+    if [[ $? != "0" ]]; then
+      sudo apt -y install ${NEEDED_TOOL}
+      verify_action
+    fi
+  done
+fi
 
-# Ensure apt-cacher-ng is installed and if enabled for the build
-if [[ "${ENABLE_CACHE}" == "y" ]]; then
+# Ensure apt-cacher-ng is installed and if enabled for the build.
+# Inside the Docker build environment apt-cacher-ng is already installed and is
+# started (without systemd) by docker/entrypoint.sh, so nothing to do here.
+if [[ "${ENABLE_CACHE}" == "y" ]] && [ -f /.dockerenv ]; then
+  echo "Running in Docker: apt-cacher-ng is managed by the container entrypoint."
+elif [[ "${ENABLE_CACHE}" == "y" ]]; then
   if ! apt list --installed 2>/dev/null | grep -q apt-cacher-ng; then
       echo "Installing apt-cacher-ng..."
       sudo debconf-get-selections | grep apt-cacher-ng > apt-cacher-ng.preseed

@@ -27,6 +27,29 @@ access to over 64,000 packages you can install via the Debian Advanced Package T
      
 Now you should be able to just run make <device_name> to build for a supported device.  Example: `make rg353m`
 
+**Building with Docker (any Linux host)**
+
+If you are not on Ubuntu, or you would rather not install the toolchain and an `apt-cacher-ng` service on your machine, you can run the whole build inside a container.  The image reproduces the expected Ubuntu 24.04 environment and the `make <device_name>` flow is unchanged.
+
+   - Requirements:
+      - Docker Engine.  The `docker-build.sh` wrapper only needs the Docker CLI; a `docker-compose.yml` is also included for those who prefer `docker compose`.
+      - A Linux host whose kernel provides the `loop` and `binfmt_misc` modules (any mainstream distro kernel does).
+      - Roughly 200GB of free disk for a full build.
+      - The container runs `--privileged` and bind-mounts `/dev` - this is required for `chroot`, `losetup`, `mount --bind` and `debootstrap`.
+   - Quick start:
+      - `git clone` this repo, then from its root run `./docker-build.sh rg353m` (swap in any device target).
+      - The first invocation builds the `darkos-builder` image automatically.
+      - The finished `*.img` / `*.7z` land in the repo root, owned by your user, exactly as with a native build.
+   - Useful commands:
+      - `./docker-build.sh shell` - interactive shell inside the build environment.
+      - `./docker-build.sh devenv` / `devenv32` - build only a development chroot.
+      - `./docker-build.sh clean` / `clean_complete` - the corresponding `make` clean targets.
+      - `./docker-build.sh --rebuild <target>` - rebuild the Docker image first (after changing `docker/`).
+   - Notes:
+      - Build knobs are passed straight through from your environment, e.g. `BUILD_KODI=y ./docker-build.sh rg353m` or `DEBIAN_CODE_NAME=sid BUILD_ARMHF=n ./docker-build.sh rgb30`.
+      - `ccache` (`Arkbuild_ccache/`), the debootstrap/package cache (`Arkbuild_package_cache/`) and the `apt-cacher-ng` store (a `darkos-aptcache` Docker volume) all persist between runs, so incremental rebuilds stay in the ~3 hour range.
+      - If the container reports that the `qemu-aarch64` binfmt handler could not be registered, run this once on the host and retry: `docker run --privileged --rm tonistiigi/binfmt --install arm64,arm`
+
 **Notes**
 - To build on a different release of Debian, change the DEBIAN_CODE_NAME export in the Makefile or add DEBIAN_CODE_NAME=<release> as a variable to `make`.  Other debian code names can be found at https://www.debian.org/releases/
 - By default, this will build with both a 64bit and 32bit userspace.  This is primarily to support some 32bit ports available through PortMaster.  There are also some 32bit retroarch emulators available but the performance seems to be similar to the 64bit retroarch emulators at this point.
