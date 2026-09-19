@@ -12,6 +12,13 @@ if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rk2020" ]; then
   else
     KERNEL_DTB="${CHIPSET}-odroidgo2-linux.dtb"
   fi
+elif [ "$UNIT" == "rg351p" ]; then
+  # RG351P shares the rg351 kernel/defconfig with the MP family, but its panel is
+  # portrait-native (320x480) like the OGA devices, so it needs a rotated framebuffer.
+  KERNEL_SRC="rg351"
+  DEF_CONFIG="rg351p_tweaked_defconfig"
+  SCREEN_ROTATION="3"
+  KERNEL_DTB="${CHIPSET}-${UNIT}-linux.dtb"
 else
   KERNEL_SRC="rg351"
   DEF_CONFIG="rg351p_tweaked_defconfig"

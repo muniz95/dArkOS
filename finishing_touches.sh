@@ -24,7 +24,7 @@ load mmc 1:1 \${dtb_loadaddr} ${KERNEL_DTB}
 booti \${loadaddr} \${initrd_loadaddr} \${dtb_loadaddr}
 EOF
 
-if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rk2020" ]; then
+if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rk2020" ] || [ "$UNIT" == "rg351p" ]; then
   sudo cp logos/rotated/logo.bmp ${mountpoint}/
 else
   sudo cp logos/unrotated/logo.bmp ${mountpoint}/

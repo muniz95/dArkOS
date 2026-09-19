@@ -34,7 +34,7 @@ Usage: ./docker-build.sh [--rebuild] <target>
 
 Common targets (anything the Makefile accepts also works):
   Devices : a10mini g350 miniloong rgb10 rgb20pro rgb30 rg351mp
-            rg353m rg353v rg503 rk2023
+            rg351p rg353m rg353v rg503 rk2023
   Dev env : devenv  devenv32
   Cleanup : clean  clean_devenv  clean_devenv32  clean_complete
   Other   : shell   (interactive bash in the build environment)

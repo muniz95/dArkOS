@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Build and install ti99sim standalone emulator
-if [ "$UNIT" == "rgb10" ]; then
+if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rg351p" ]; then
+  # RG351P shares the 480x320 ti99sim layout with the OGA/rgb10 build.
   BUILD_UNIT="rgb10"
 elif [ "$UNIT" == "rg351mp" ] || [ "$UNIT" == "g350" ] || [ "$UNIT" == "a10mini" ]; then
   BUILD_UNIT="rg351mp"
