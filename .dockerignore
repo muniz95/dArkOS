@@ -1,0 +1,4 @@
+# The image never COPYs the repo (it is bind-mounted at run time), so keep the
+# build context tiny - only docker/ is actually needed by the Dockerfile.
+*
+!docker/

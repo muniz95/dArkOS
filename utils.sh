@@ -32,7 +32,9 @@ export CROSS_COMPILE=aarch64-linux-gnu-
 if [ -d "$OPT_TOOLCHAIN_DIR" ]; then
     export PATH="$OPT_TOOLCHAIN_DIR"/bin/:$PATH
 else
-    export PATH="$LOCAL_TOOLCHAIN_DIR"/bin/:$PATH
+    # Absolute path: build_kernel.sh (and others) cd into subdirectories before
+    # invoking the cross compiler, so a relative prebuilts/ entry would not resolve.
+    export PATH="${PWD}/${LOCAL_TOOLCHAIN_DIR}/bin/:$PATH"
 fi
 if [ "$CHIPSET" == "rk3326" ]; then
   export whichmali=libmali-bifrost-g31-rxp0-gbm.so

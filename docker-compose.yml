@@ -1,0 +1,36 @@
+# Docker build environment for dArkOS.
+#
+# Optional convenience for people who prefer `docker compose`. The primary entry
+# point is ./docker-build.sh, which only needs the plain Docker CLI. Both routes
+# use the same image, /dev bind-mount and darkos-aptcache volume.
+#
+#   HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose run --rm builder make rg353m
+#
+services:
+  builder:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: darkos-builder:latest
+    # chroot, mount --bind, losetup, debootstrap and partprobe all need this.
+    privileged: true
+    working_dir: /darkos
+    stop_grace_period: 30s
+    volumes:
+      - .:/darkos
+      - /dev:/dev
+      - darkos-aptcache:/var/cache/apt-cacher-ng
+    # List form: each var is forwarded only when it is actually set in the
+    # environment that runs `docker compose` (see docker-build.sh). This matters
+    # because the Makefile errors out on an explicitly empty DEBIAN_CODE_NAME.
+    environment:
+      - DEBIAN_CODE_NAME
+      - ENABLE_CACHE
+      - BUILD_KODI
+      - BUILD_ARMHF
+      - BUILD_BLUEALSA
+      - HOST_UID
+      - HOST_GID
+
+volumes:
+  darkos-aptcache: {}

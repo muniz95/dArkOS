@@ -24,7 +24,7 @@ else
 	sudo mkdir -p Arkbuild/home/ark/.config/retroarch/filters/video
 	sudo mkdir -p Arkbuild/home/ark/.config/retroarch/filters/audio
 	sudo mkdir -p Arkbuild/home/ark/.config/retroarch/autoconfig/udev
-	if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rk2020" ]; then
+	if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rk2020" ] || [ "$UNIT" == "rg351p" ]; then
 	  sudo cp -a Arkbuild/home/ark/${CHIPSET}_core_builds/retroarch64/retroarch.${CHIPSET}.rot Arkbuild/opt/retroarch/bin/retroarch
 	elif [ "$UNIT" == "miniloong" ]; then
 	  sudo cp -a Arkbuild/home/ark/${CHIPSET}_core_builds/retroarch64/retroarch-rgarotated Arkbuild/opt/retroarch/bin/retroarch

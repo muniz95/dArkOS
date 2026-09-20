@@ -13,6 +13,8 @@ elif [ "$UNIT" == "rk2020" ]; then
   branch="rk2020"
 elif [ "$UNIT" == "rg351mp" ]; then
   branch="rg351mp"
+elif [ "$UNIT" == "rg351p" ]; then
+  branch="rg351"
 elif [ "$UNIT" == "rg351v" ]; then
   branch="rg351v"
 elif [[ "$UNIT" == *"353"* ]]; then
