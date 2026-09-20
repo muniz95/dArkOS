@@ -19,14 +19,26 @@ elif [[ "$UNIT" == "miniloong" ]]; then
   BUILD_UNIT="MINILOONG"
 fi
 
-call_chroot "cd /home/ark &&
-  git clone --recursive https://github.com/christianhaitian/351Files.git &&
-  cd 351Files &&
-  ./build_RG351.sh ${BUILD_UNIT} ArkOS /roms ./res &&
-  strip 351Files*
-  "
-sudo mkdir -p Arkbuild/opt/351Files
-sudo cp Arkbuild/home/ark/351Files/351Files* Arkbuild/opt/351Files/
-sudo chmod 777 Arkbuild/opt/351Files/351Files*
-sudo cp -R Arkbuild/home/ark/351Files/res/ Arkbuild/opt/351Files/
-sudo rm -rf Arkbuild/home/ark/351Files
+if [ -f "Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.tar.gz" ] && [ "$(cat Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.commit)" == "$(curl -s https://api.github.com/repos/christianhaitian/351Files/commits/master | jq -r '.sha')" ]; then
+    sudo tar -xvzpf Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.tar.gz
+else
+	call_chroot "cd /home/ark &&
+	  git clone --recursive https://github.com/christianhaitian/351Files.git &&
+	  cd 351Files &&
+	  ./build_RG351.sh ${BUILD_UNIT} ArkOS /roms ./res &&
+	  strip 351Files*
+	  "
+	sudo mkdir -p Arkbuild/opt/351Files
+	sudo cp Arkbuild/home/ark/351Files/351Files* Arkbuild/opt/351Files/
+	sudo chmod 777 Arkbuild/opt/351Files/351Files*
+	sudo cp -R Arkbuild/home/ark/351Files/res/ Arkbuild/opt/351Files/
+	sudo rm -rf Arkbuild/home/ark/351Files
+	if [ -f "Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.tar.gz" ]; then
+	  sudo rm -f Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.tar.gz
+	fi
+	if [ -f "Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.commit" ]; then
+	  sudo rm -f Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.commit
+	fi
+	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.tar.gz Arkbuild/opt/351Files/
+	curl -s https://api.github.com/repos/christianhaitian/351Files/commits/master | jq -r '.sha' > Arkbuild_package_cache/${CHIPSET}/351files_${UNIT}.commit
+fi
