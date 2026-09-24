@@ -7,7 +7,7 @@ jq
 libasound2-dev
 libboost-date-time-dev
 libboost-dev
-libboost-filesystem1.88-dev
+libboost-filesystem-dev
 libboost-locale-dev
 libboost-regex-dev
 libboost-system-dev
