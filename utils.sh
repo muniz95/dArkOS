@@ -181,27 +181,38 @@ function install_package() {
     CHROOT_DIR="Arkbuild"
   fi
   neededlibs=( ${@:2} )
+
+  # Probe which packages are actually missing first (cheap, local dpkg -s
+  # calls), then install all of them in a single `apt install` so apt only
+  # resolves dependencies and updates state once instead of once per
+  # package - this is much faster than looping install_package one
+  # package at a time.
+  missinglibs=()
   for libs in "${neededlibs[@]}"
   do
      sudo chroot ${CHROOT_DIR}/ dpkg -s "${libs}${NEEDED_ARCH}" &>/dev/null
      if [[ $? != "0" ]]; then
-       if [[ "$updateapt" == "N" ]]; then
-         if test -z "$(cat ${CHROOT_DIR}/etc/apt/sources.list | grep contrib)"
-         then
-           sudo sed -i '/main/s//main contrib non-free non-free-firmware/' ${CHROOT_DIR}/etc/apt/sources.list
-		 fi
-         sudo chroot ${CHROOT_DIR}/ apt -y update
-         updateapt="Y"
-       fi
-       sudo chroot ${CHROOT_DIR}/ bash -c "DEBIAN_FRONTEND=noninteractive eatmydata apt -y install ${libs}${NEEDED_ARCH}"
-       if [[ $? != "0" ]]; then
-         echo " "
-         echo "Could not install needed library ${libs}${NEEDED_ARCH}."
-       else
-	     echo "${libs}${NEEDED_ARCH} was successfully installed."
-       fi
+       missinglibs+=("${libs}${NEEDED_ARCH}")
      fi
   done
+
+  if [ "${#missinglibs[@]}" -gt 0 ]; then
+    if [[ "$updateapt" == "N" ]]; then
+      if test -z "$(cat ${CHROOT_DIR}/etc/apt/sources.list | grep contrib)"
+      then
+        sudo sed -i '/main/s//main contrib non-free non-free-firmware/' ${CHROOT_DIR}/etc/apt/sources.list
+      fi
+      sudo chroot ${CHROOT_DIR}/ apt -y update
+      updateapt="Y"
+    fi
+    sudo chroot ${CHROOT_DIR}/ bash -c "DEBIAN_FRONTEND=noninteractive eatmydata apt -y install ${missinglibs[*]}"
+    if [[ $? != "0" ]]; then
+      echo " "
+      echo "Could not install one or more needed libraries: ${missinglibs[*]}."
+    else
+      echo "${missinglibs[*]} were successfully installed."
+    fi
+  fi
 }
 
 function protect_package() {
