@@ -45,11 +45,58 @@ If you are not on Ubuntu, or you would rather not install the toolchain and an `
       - `./docker-build.sh devenv` / `devenv32` - build only a development chroot.
       - `./docker-build.sh clean` / `clean_complete` - the corresponding `make` clean targets.
       - `./docker-build.sh --rebuild <target>` - rebuild the Docker image first (after changing `docker/`).
+      - `./docker-build.sh step UNIT=<device> STEP=<script.sh>` - debug a single build step (e.g. `UNIT=rg351p STEP=build_retroarch.sh`) without running a full device build. See "Debugging a single build step" below.
    - Notes:
       - Build knobs are passed straight through from your environment, e.g. `BUILD_KODI=y ./docker-build.sh rg353m` or `DEBIAN_CODE_NAME=sid BUILD_ARMHF=n ./docker-build.sh rgb30`.
       - `ccache` (`Arkbuild_ccache/`), the debootstrap/package cache (`Arkbuild_package_cache/`) and the `apt-cacher-ng` store (a `darkos-aptcache` Docker volume) all persist between runs, so incremental rebuilds stay in the ~3 hour range.
       - The Linaro cross toolchain is downloaded once into `prebuilts/` (git-ignored) unless you already have it at `/opt/toolchains/`.
       - If the container reports that the `qemu-aarch64` binfmt handler could not be registered, run this once on the host and retry: `docker run --privileged --rm tonistiigi/binfmt --install arm64,arm`
+
+**Debugging a single build step**
+
+Every `build_<device>.sh` is a fixed sequence of `source ./build_*.sh` step
+scripts (kernel, each emulator, EmulationStation, image creation, ...).
+Those step scripts are not standalone - they assume `CHIPSET`/`UNIT` are
+exported and that a live `Arkbuild/` chroot already exists. If one step is
+failing (e.g. `build_retroarch.sh`), re-running the entire per-device script
+to reach it is slow and rebuilds a lot of unrelated things first.
+
+`build_step.sh` runs just the prerequisite setup (partitioning, Debian
+bootstrap, base deps, SDL2) once, then sources only the step script(s) you
+name:
+
+```sh
+# First run: bootstraps Arkbuild/, then runs build_retroarch.sh
+./docker-build.sh step UNIT=rg351p STEP=build_retroarch.sh
+
+# Edit build_retroarch.sh, then just re-run - the chroot is reused
+./docker-build.sh step UNIT=rg351p STEP=build_retroarch.sh
+
+# Chain a couple of steps if one depends on another
+./docker-build.sh step UNIT=rg351p STEP="build_sdl2.sh build_retroarch.sh"
+```
+
+Works the same way natively: `UNIT=rg351p STEP=build_retroarch.sh
+./build_step.sh`, or `make step UNIT=rg351p STEP=build_retroarch.sh`.
+
+Reuse across runs: `Arkbuild/` is a loop mount of `ArkOS_File_System.img`.
+Under Docker, every `docker-build.sh step` invocation is a fresh `--rm`
+container, so a mount made inside one run does not carry over into the
+next, even though the `.img` file itself persists in the bind-mounted repo.
+`build_step.sh` accounts for this: if `Arkbuild/` isn't already mounted but
+`ArkOS_File_System.img` is present, it re-mounts that image (and re-binds
+`/dev /proc /sys`) instead of bootstrapping from scratch, and skips
+deps/SDL2 too once a `.arkbuild_prepared` marker shows they already ran. A
+full re-bootstrap only happens the first time, or after `make clean` /
+`./docker-build.sh clean` has removed the image.
+
+Output is logged to `build_step.log` (rotated on each run, same as
+`build.log` for full device builds).
+
+This does **not** produce a flashable image - `finishing_touches.sh`,
+`write_rootfs.sh` and `create_image.sh` are not run. When you're done, tear
+down the chroot with `./docker-build.sh clean` (or `make clean`) before
+starting a fresh `step` or full device build.
 
 **Notes**
 - To build on a different release of Debian, change the DEBIAN_CODE_NAME export in the Makefile or add DEBIAN_CODE_NAME=<release> as a variable to `make`.  Other debian code names can be found at https://www.debian.org/releases/

@@ -38,6 +38,11 @@ Common targets (anything the Makefile accepts also works):
   Dev env : devenv  devenv32
   Cleanup : clean  clean_devenv  clean_devenv32  clean_complete
   Other   : shell   (interactive bash in the build environment)
+            step UNIT=<device> STEP=<script.sh> [STEP="a.sh b.sh"]
+                    (re-run one build_*.sh step against a prepared chroot,
+                     reusing it across runs - for debugging a single step
+                     without a full device build; produces no image. See
+                     README.md "Building with Docker".)
 
 Env vars forwarded to the build (same as native make):
   DEBIAN_CODE_NAME  ENABLE_CACHE  BUILD_KODI  BUILD_ARMHF  BUILD_BLUEALSA

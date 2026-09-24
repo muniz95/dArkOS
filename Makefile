@@ -116,6 +116,12 @@ rk2023:
 	@sleep 5
 	./build_rk2023.sh
 
+step:
+	$(info Running build step(s) '$(STEP)' for UNIT=$(UNIT))
+	@[ -n "$(UNIT)" ] || (echo "UNIT is required, e.g. UNIT=rg351p"; exit 1)
+	@[ -n "$(STEP)" ] || (echo "STEP is required, e.g. STEP=build_retroarch.sh"; exit 1)
+	UNIT=$(UNIT) STEP="$(STEP)" ./build_step.sh
+
 devenv:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
 	$(info debian building caching enabled? ${ENABLE_CACHE})
