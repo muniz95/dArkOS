@@ -25,9 +25,9 @@ call_chroot "cd /home/ark &&
   ./ArkOS-Kodi-Build-alt.sh ${KODI_VERSION_TAG}
   "
 sudo rm -rf Arkbuild/home/ark/kodi
-sudo cp -R kodi/userdata/ Arkbuild/opt/kodi/
+sudo cp -R tools/kodi/userdata/ Arkbuild/opt/kodi/
 call_chroot "chown -R ark:ark /opt/kodi/"
-sudo cp kodi/scripts/Kodi.sh Arkbuild/usr/local/bin/
+sudo cp tools/kodi/scripts/Kodi.sh Arkbuild/usr/local/bin/
 sudo chmod 777 Arkbuild/usr/local/bin/Kodi.sh
 
 if [[ "$UNIT" != *"503"* ]]; then

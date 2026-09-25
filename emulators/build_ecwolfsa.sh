@@ -21,8 +21,8 @@ else
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/ecwolf/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/ecwolf rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/ecwolfsa.commit
 fi
 sudo mkdir -p Arkbuild/home/ark/.config/ecwolf
-sudo cp ecwolf/config/ecwolf.cfg.${UNIT} Arkbuild/home/ark/.config/ecwolf/ecwolf.cfg
-sudo cp -a ecwolf/ecwolf* Arkbuild/usr/local/bin/
+sudo cp emulators/ecwolf/config/ecwolf.cfg.${UNIT} Arkbuild/home/ark/.config/ecwolf/ecwolf.cfg
+sudo cp -a emulators/ecwolf/ecwolf* Arkbuild/usr/local/bin/
 
 call_chroot "chown -R ark:ark /home/ark/.config/"
 call_chroot "chown -R ark:ark /opt/"

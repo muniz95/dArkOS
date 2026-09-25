@@ -50,5 +50,5 @@ else
 	sudo rm -rf Arkbuild/home/ark/ogage
 fi
 
-sudo cp scripts/ogage.service Arkbuild/etc/systemd/system/ogage.service
+sudo cp system/scripts/ogage.service Arkbuild/etc/systemd/system/ogage.service
 call_chroot "systemctl enable ogage"

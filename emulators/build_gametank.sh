@@ -20,8 +20,8 @@ else
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/gametank.tar.gz Arkbuild/opt/gametank/
 	sudo curl -s https://api.github.com/repos/clydeshaffer/gametankemulator/commits/main | jq -r '.sha' > Arkbuild_package_cache/${CHIPSET}/gametank.commit
 fi
-sudo cp gametank/config/gametank.gptk Arkbuild/opt/gametank/gametank.gptk
-sudo cp gametank/scripts/gametank.sh Arkbuild/usr/local/bin/
+sudo cp emulators/gametank/config/gametank.gptk Arkbuild/opt/gametank/gametank.gptk
+sudo cp emulators/gametank/scripts/gametank.sh Arkbuild/usr/local/bin/
 
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/gametank/GameTankEmulator

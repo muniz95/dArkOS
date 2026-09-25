@@ -21,7 +21,7 @@ else
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/piemu/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/piemu rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/piemu.commit
 fi
 
-sudo cp piemu/scripts/piemu_run.sh Arkbuild/usr/local/bin/
+sudo cp emulators/piemu/scripts/piemu_run.sh Arkbuild/usr/local/bin/
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/piemu/*
 sudo chmod 777 Arkbuild/usr/local/bin/piemu_run.sh

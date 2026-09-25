@@ -33,15 +33,16 @@ Now you should be able to just run make <device_name> to build for a supported d
 |---|---|
 | `devices/` | Per-device entry points (`build_<device>.sh`), run by `make <device_name>` |
 | `stages/` | Image pipeline stages: partitioning, rootfs bootstrap, kernel, base deps, finishing touches, image creation |
-| `emulators/` | Build scripts for standalone emulators and RetroArch |
-| `tools/` | Build scripts for EmulationStation, Kodi, file managers, controller/hotkey tools and other utilities |
-| `libs/` | Build scripts for system libraries (SDL2, ffmpeg, bluez-alsa, wpa_supplicant) |
+| `emulators/` | Build scripts for standalone emulators and RetroArch, plus each emulator's configs and launch scripts (e.g. `emulators/ppsspp/`, `emulators/retroarch/`) |
+| `tools/` | Build scripts and assets for EmulationStation, Kodi, file managers, controller/hotkey tools, the Options/Tools menu scripts (`tools/dArkOS_Tools/`) and prepackaged extras (`tools/extra_packages/`) |
+| `libs/` | Build scripts for system libraries (SDL2, ffmpeg, bluez-alsa, wpa_supplicant), plus Bluetooth configs |
+| `system/` | OS-level files baked into the image: system scripts and services, device/audio configs, boot logos, launch/shutdown images, firmware |
 | `common/` | Shared shell helpers (`utils.sh`, `chipset_for_unit.sh`) |
 | `lists/` | Package lists, RetroArch core lists and `game_systems.txt` |
 | `dev/` | Developer helpers: `build_step.sh`, dev chroot (`build_devenv.sh`), standalone Kodi packaging, `FreeSudo.sh` |
 | `docker/` | Docker build environment used by `docker-build.sh` |
 
-The remaining top-level folders (`ppsspp/`, `retroarch/`, `scripts/`, `logos/`, ...) hold the configs and assets that the build scripts copy into the image.  All scripts run with the repo root as the working directory.
+All scripts run with the repo root as the working directory, so asset paths in build scripts are relative to it (e.g. `emulators/ppsspp/controls.ini.${UNIT}`).
 
 **Building with Docker (any Linux host)**
 
@@ -120,7 +121,7 @@ starting a fresh `step` or full device build.
 - To build on a different release of Debian, change the DEBIAN_CODE_NAME export in the Makefile or add DEBIAN_CODE_NAME=<release> as a variable to `make`.  Other debian code names can be found at https://www.debian.org/releases/
 - By default, this will build with both a 64bit and 32bit userspace.  This is primarily to support some 32bit ports available through PortMaster.  There are also some 32bit retroarch emulators available but the performance seems to be similar to the 64bit retroarch emulators at this point.
  - To build without 32bit support, change the BUILD_ARMHF export in the Makefile to n or add BUILD_ARMHF=n as a variable to `make`.
-- For RK3566, you can add Kodi to your build.  Just change the BUILD_KODI export in the Makefile to y or add BUILD_KODI=y as a variavble to `make`.  Kodi is also available as a prepackaged build in the extra_packages/rk3566 subfolder.  Just copy it to your tools folder and launch from Options/Tools in the start menu.
+- For RK3566, you can add Kodi to your build.  Just change the BUILD_KODI export in the Makefile to y or add BUILD_KODI=y as a variavble to `make`.  Kodi is also available as a prepackaged build in the tools/extra_packages/rk3566 subfolder.  Just copy it to your tools folder and launch from Options/Tools in the start menu.
  - Be aware that building Kodi will add a significant amount of time to your build.  Could be double or triple the build time.
 - Initial build time on an Intel I7-8700 65w unit with a 512GB NVME SSD and 32GB of DDR4 memory is a little over 19 hours.  Subsequent builds are about 3 hours thanks to ccache.
 

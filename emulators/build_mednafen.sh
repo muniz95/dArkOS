@@ -21,8 +21,8 @@ else
 	sudo curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/mednafen.sh | grep -oP '(?<=tarname=").*?(?=")' > Arkbuild_package_cache/${CHIPSET}/mednafen.commit
 fi
 sudo mkdir -p Arkbuild/home/ark/.mednafen
-sudo cp mednafen/configs/mednafen.cfg.${UNIT} Arkbuild/home/ark/.mednafen/mednafen.cfg
-sudo cp mednafen/mednafen Arkbuild/usr/local/bin/
+sudo cp emulators/mednafen/configs/mednafen.cfg.${UNIT} Arkbuild/home/ark/.mednafen/mednafen.cfg
+sudo cp emulators/mednafen/mednafen Arkbuild/usr/local/bin/
 
 call_chroot "chown -R ark:ark /home/ark/.mednafen/"
 call_chroot "chown -R ark:ark /opt/"

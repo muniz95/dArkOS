@@ -47,17 +47,17 @@ else
 	sudo curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/retroarch.sh | grep -oP '(?<=tag=").*?(?=")' > Arkbuild_package_cache/${CHIPSET}/retroarch_${UNIT}.commit
 fi
 sudo rm -rf Arkbuild/home/ark/${CHIPSET}_core_builds/retroarch/
-sudo cp retroarch/configs/retroarch.cfg.${UNIT} Arkbuild/home/ark/.config/retroarch/retroarch.cfg
-sudo cp retroarch/configs/retroarch.cfg.spectate Arkbuild/home/ark/.config/retroarch/retroarch.cfg.spectate
-sudo cp retroarch/configs/retroarch.cfg.vert Arkbuild/home/ark/.config/retroarch/retroarch.cfg.vert
-sudo cp retroarch/configs/retroarch.cfg.bak.${UNIT} Arkbuild/home/ark/.config/retroarch/retroarch.cfg.bak
-sudo cp retroarch/configs/retroarch-core-options.cfg.${UNIT} Arkbuild/home/ark/.config/retroarch/retroarch-core-options.cfg
-sudo cp retroarch/configs/retroarch-core-options.cfg.bak.${UNIT} Arkbuild/home/ark/.config/retroarch/retroarch-core-options.cfg.bak
-sudo cp retroarch/configs/controller/*.cfg Arkbuild/home/ark/.config/retroarch/autoconfig/udev/
-sudo cp retroarch/scripts/retroarch Arkbuild/usr/local/bin/
+sudo cp emulators/retroarch/configs/retroarch.cfg.${UNIT} Arkbuild/home/ark/.config/retroarch/retroarch.cfg
+sudo cp emulators/retroarch/configs/retroarch.cfg.spectate Arkbuild/home/ark/.config/retroarch/retroarch.cfg.spectate
+sudo cp emulators/retroarch/configs/retroarch.cfg.vert Arkbuild/home/ark/.config/retroarch/retroarch.cfg.vert
+sudo cp emulators/retroarch/configs/retroarch.cfg.bak.${UNIT} Arkbuild/home/ark/.config/retroarch/retroarch.cfg.bak
+sudo cp emulators/retroarch/configs/retroarch-core-options.cfg.${UNIT} Arkbuild/home/ark/.config/retroarch/retroarch-core-options.cfg
+sudo cp emulators/retroarch/configs/retroarch-core-options.cfg.bak.${UNIT} Arkbuild/home/ark/.config/retroarch/retroarch-core-options.cfg.bak
+sudo cp emulators/retroarch/configs/controller/*.cfg Arkbuild/home/ark/.config/retroarch/autoconfig/udev/
+sudo cp emulators/retroarch/scripts/retroarch Arkbuild/usr/local/bin/
 sudo mkdir -p Arkbuild/opt/cmds
-sudo cp retroarch/scripts/retroarch.sh Arkbuild/opt/cmds
-#sudo cp retroarch/scripts/retroarch32.sh Arkbuild/opt/cmds
+sudo cp emulators/retroarch/scripts/retroarch.sh Arkbuild/opt/cmds
+#sudo cp emulators/retroarch/scripts/retroarch32.sh Arkbuild/opt/cmds
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/cmds/*
 sudo chmod 777 Arkbuild/usr/local/bin/retroarch
@@ -83,8 +83,8 @@ while read RETROARCH_CORE; do
     fi
     sudo wget --retry-connrefused --retry-on-http-error=429 --waitretry=20 -t 65 -T 30 --no-check-certificate https://github.com/libretro/libretro-core-info/raw/refs/heads/master/"$RETROARCH_CORE"_libretro.info -O Arkbuild/home/ark/.config/retroarch/cores/"$RETROARCH_CORE"_libretro.info
     if [ $? -ne 0 ]; then
-      if [ -f "core_info_files/${RETROARCH_CORE}_libretro.info" ]; then
-	    sudo cp core_info_files/"$RETROARCH_CORE"_libretro.info Arkbuild/home/ark/.config/retroarch/cores/"$RETROARCH_CORE"_libretro.info
+      if [ -f "emulators/core_info_files/${RETROARCH_CORE}_libretro.info" ]; then
+	    sudo cp emulators/core_info_files/"$RETROARCH_CORE"_libretro.info Arkbuild/home/ark/.config/retroarch/cores/"$RETROARCH_CORE"_libretro.info
       fi
     fi
   fi
@@ -92,7 +92,7 @@ while read RETROARCH_CORE; do
 done <lists/retroarch_cores.txt
 
 # Copy other core info files not available from libretro's repo
-sudo cp core_info_files/* Arkbuild/home/ark/.config/retroarch/cores/
+sudo cp emulators/core_info_files/* Arkbuild/home/ark/.config/retroarch/cores/
 
 # Download and add retroarch assets
 sudo git clone --depth=1 https://github.com/libretro/retroarch-assets.git Arkbuild/home/ark/.config/retroarch/assets/
@@ -239,14 +239,14 @@ if [[ "${BUILD_ARMHF}" == "y" ]]; then
 		sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/retroarch32_${UNIT}.tar.gz Arkbuild/opt/retroarch/bin/retroarch32 Arkbuild/home/ark/.config/retroarch32/ Arkbuild/usr/lib/arm-linux-gnueabihf/libSDL2-2.0.so.0.${extension} Arkbuild/usr/lib/arm-linux-gnueabihf/librga.so* Arkbuild/usr/lib/arm-linux-gnueabihf/libgo2.so* Arkbuild/usr/lib/arm-linux-gnueabihf/${whichmali} Arkbuild/usr/lib/arm-linux-gnueabihf/{libEGL.so,libEGL.so.1,libEGL.so.1.1.0,libGLES_CM.so,libGLES_CM.so.1,libGLESv1_CM.so,libGLESv1_CM.so.1,libGLESv1_CM.so.1.1.0,libGLESv2.so,libGLESv2.so.2,libGLESv2.so.2.0.0,libGLESv2.so.2.1.0,libGLESv3.so,libGLESv3.so.3,libgbm.so,libgbm.so.1,libgbm.so.1.0.0,libmali.so,libmali.so.1,libMaliOpenCL.so,libOpenCL.so,libwayland-egl.so,libwayland-egl.so.1,libwayland-egl.so.1.0.0,libMali.so}
 		sudo curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/retroarch.sh | grep -oP '(?<=tag=").*?(?=")' > Arkbuild_package_cache/${CHIPSET}/retroarch32_${UNIT}.commit
 	fi
-	sudo cp retroarch32/configs/retroarch.cfg.${UNIT} Arkbuild/home/ark/.config/retroarch32/retroarch.cfg
-	sudo cp retroarch32/configs/retroarch.cfg.spectate Arkbuild/home/ark/.config/retroarch32/retroarch.cfg.spectate
-	sudo cp retroarch32/configs/retroarch.cfg.bak.${UNIT} Arkbuild/home/ark/.config/retroarch32/retroarch.cfg.bak
-	sudo cp retroarch32/configs/retroarch-core-options.cfg.${UNIT} Arkbuild/home/ark/.config/retroarch32/retroarch-core-options.cfg
-	sudo cp retroarch32/configs/retroarch-core-options.cfg.bak.${UNIT} Arkbuild/home/ark/.config/retroarch32/retroarch-core-options.cfg.bak
-	sudo cp retroarch32/configs/controller/*.cfg Arkbuild/home/ark/.config/retroarch32/autoconfig/udev/
-	sudo cp retroarch32/scripts/retroarch32 Arkbuild/usr/local/bin/
-	sudo cp retroarch32/scripts/retroarch32.sh Arkbuild/opt/cmds
+	sudo cp emulators/retroarch32/configs/retroarch.cfg.${UNIT} Arkbuild/home/ark/.config/retroarch32/retroarch.cfg
+	sudo cp emulators/retroarch32/configs/retroarch.cfg.spectate Arkbuild/home/ark/.config/retroarch32/retroarch.cfg.spectate
+	sudo cp emulators/retroarch32/configs/retroarch.cfg.bak.${UNIT} Arkbuild/home/ark/.config/retroarch32/retroarch.cfg.bak
+	sudo cp emulators/retroarch32/configs/retroarch-core-options.cfg.${UNIT} Arkbuild/home/ark/.config/retroarch32/retroarch-core-options.cfg
+	sudo cp emulators/retroarch32/configs/retroarch-core-options.cfg.bak.${UNIT} Arkbuild/home/ark/.config/retroarch32/retroarch-core-options.cfg.bak
+	sudo cp emulators/retroarch32/configs/controller/*.cfg Arkbuild/home/ark/.config/retroarch32/autoconfig/udev/
+	sudo cp emulators/retroarch32/scripts/retroarch32 Arkbuild/usr/local/bin/
+	sudo cp emulators/retroarch32/scripts/retroarch32.sh Arkbuild/opt/cmds
 	call_chroot "chown -R ark:ark /opt/"
 	sudo chmod 777 Arkbuild/opt/cmds/*
 	sudo chmod 777 Arkbuild/usr/local/bin/retroarch32
@@ -272,8 +272,8 @@ if [[ "${BUILD_ARMHF}" == "y" ]]; then
 		fi
 		sudo wget --retry-connrefused --retry-on-http-error=429 --waitretry=20 -t 65 -T 30 --no-check-certificate https://github.com/libretro/libretro-core-info/raw/refs/heads/master/"$RETROARCH_CORE32"_libretro.info -O Arkbuild/home/ark/.config/retroarch32/cores/"$RETROARCH_CORE32"_libretro.info
 		if [ $? -ne 0 ]; then
-		  if [ -f "core_info_files/${RETROARCH_CORE32}_libretro.info" ]; then
-			sudo cp core_info_files/"$RETROARCH_CORE32"_libretro.info Arkbuild/home/ark/.config/retroarch32/cores/"$RETROARCH_CORE32"_libretro.info
+		  if [ -f "emulators/core_info_files/${RETROARCH_CORE32}_libretro.info" ]; then
+			sudo cp emulators/core_info_files/"$RETROARCH_CORE32"_libretro.info Arkbuild/home/ark/.config/retroarch32/cores/"$RETROARCH_CORE32"_libretro.info
 		  fi
 		fi
 	  fi
@@ -281,7 +281,7 @@ if [[ "${BUILD_ARMHF}" == "y" ]]; then
 	done <lists/retroarch_cores32.txt
 
 	# Copy other core info files not available from libretro's repo
-	sudo cp core_info_files/* Arkbuild/home/ark/.config/retroarch32/cores/
+	sudo cp emulators/core_info_files/* Arkbuild/home/ark/.config/retroarch32/cores/
 
 	# Download and add retroarch assets
 	sudo git clone --depth=1 https://github.com/libretro/retroarch-assets.git Arkbuild/home/ark/.config/retroarch32/assets/

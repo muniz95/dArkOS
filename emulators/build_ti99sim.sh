@@ -35,7 +35,7 @@ else
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/ti99sim/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/ti99sim rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/ti99_${BUILD_UNIT}.commit
 fi
 
-sudo cp ti99sim/ti99.sh Arkbuild/usr/local/bin/
+sudo cp emulators/ti99sim/ti99.sh Arkbuild/usr/local/bin/
 sudo chmod 777 Arkbuild/opt/ti99sim/bin/*
 sudo chmod 777 Arkbuild/usr/local/bin/ti99.sh
 call_chroot "chown -R ark:ark /opt/"

@@ -30,9 +30,9 @@ else
 fi
 
 sudo mkdir -p Arkbuild/home/ark/.config/scummvm
-sudo cp scummvm/configs/scummvm.ini.${UNIT} Arkbuild/home/ark/.config/scummvm/scummvm.ini
+sudo cp emulators/scummvm/configs/scummvm.ini.${UNIT} Arkbuild/home/ark/.config/scummvm/scummvm.ini
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/scummvm/scummvm
 call_chroot "chown -R ark:ark /home/ark/.config/"
-sudo cp scummvm/scripts/scummvm.sh Arkbuild/usr/local/bin/scummvm.sh
+sudo cp emulators/scummvm/scripts/scummvm.sh Arkbuild/usr/local/bin/scummvm.sh
 sudo chmod 777 Arkbuild/usr/local/bin/scummvm.sh

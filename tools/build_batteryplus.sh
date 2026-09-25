@@ -22,10 +22,10 @@ else
 	sudo curl -s 'https://api.github.com/repos/Mikhailzrick/knubat.components/commits?path=BatteryPlus/batteryplus.cpp&per_page=1' | jq -r '.[0].sha' > Arkbuild_package_cache/${CHIPSET}/batteryplus.commit
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/batteryplus.tar.gz Arkbuild/usr/local/bin/batteryplus
 fi
-sudo cp batteryplus/scripts/batteryplus.sh Arkbuild/usr/local/bin/
-sudo cp batteryplus/systemd/* Arkbuild/etc/systemd/system/
+sudo cp tools/batteryplus/scripts/batteryplus.sh Arkbuild/usr/local/bin/
+sudo cp tools/batteryplus/systemd/* Arkbuild/etc/systemd/system/
 sudo mkdir -p Arkbuild/etc/batteryplus
-sudo cp --remove-destination batteryplus/config/batteryplus.conf Arkbuild/etc/batteryplus/
+sudo cp --remove-destination tools/batteryplus/config/batteryplus.conf Arkbuild/etc/batteryplus/
 echo "Voltage" | sudo tee Arkbuild/home/ark/.config/.BRMODE
 sudo chmod 777 Arkbuild/usr/local/bin/*
 call_chroot "chmod 644 /etc/systemd/system/batteryplus.service"

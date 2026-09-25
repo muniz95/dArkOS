@@ -27,9 +27,9 @@ else
 	sudo curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/gzdoom.sh | grep -oP '(?<=TAG=").*?(?=")' > Arkbuild_package_cache/${CHIPSET}/gzdoom.commit
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/gzdoom.tar.gz Arkbuild/opt/gzdoom/ Arkbuild/home/ark/.config/gzdoom/
 fi
-sudo cp gzdoom/configs/${UNIT}/gzdoom.ini Arkbuild/home/ark/.config/gzdoom/
-sudo cp gzdoom/scripts/doom* Arkbuild/usr/local/bin/
-sudo cp -rL gzdoom/backup/ Arkbuild/home/ark/.config/gzdoom/
+sudo cp emulators/gzdoom/configs/${UNIT}/gzdoom.ini Arkbuild/home/ark/.config/gzdoom/
+sudo cp emulators/gzdoom/scripts/doom* Arkbuild/usr/local/bin/
+sudo cp -rL emulators/gzdoom/backup/ Arkbuild/home/ark/.config/gzdoom/
 call_chroot "chown -R ark:ark /home/ark/.config/"
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/gzdoom/*

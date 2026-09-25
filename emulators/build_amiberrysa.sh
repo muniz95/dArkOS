@@ -33,8 +33,8 @@ fi
 call_chroot "apt-get -y install --no-install-recommends libserialport0 libportmidi0"
 
 # Copy the wrapper script to /usr/local/bin
-if [ -d "amiberry" ]; then
-  sudo cp -a amiberry/amiberry* Arkbuild/usr/local/bin/
+if [ -d "emulators/amiberry" ]; then
+  sudo cp -a emulators/amiberry/amiberry* Arkbuild/usr/local/bin/
 fi
 
 call_chroot "chown -R ark:ark /opt/"

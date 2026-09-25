@@ -29,11 +29,11 @@ else
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/hypseus-singe.tar.gz Arkbuild/opt/hypseus-singe/ 
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/hypseus-singe/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/hypseus-singe rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/hypseus-singe.commit
 fi
-sudo cp hypseus-singe/configs/hypinput_gamepad.ini.${UNIT} Arkbuild/opt/hypseus-singe/hypinput_gamepad.ini
-sudo cp hypseus-singe/configs/gamecontrollerdb.txt Arkbuild/opt/hypseus-singe/gamecontrollerdb.txt
+sudo cp emulators/hypseus-singe/configs/hypinput_gamepad.ini.${UNIT} Arkbuild/opt/hypseus-singe/hypinput_gamepad.ini
+sudo cp emulators/hypseus-singe/configs/gamecontrollerdb.txt Arkbuild/opt/hypseus-singe/gamecontrollerdb.txt
 call_chroot "chown -R ark:ark /opt/"
-sudo cp hypseus-singe/scripts/singe.sh Arkbuild/usr/local/bin/singe.sh
-sudo cp hypseus-singe/scripts/daphne.sh Arkbuild/usr/local/bin/daphne.sh
+sudo cp emulators/hypseus-singe/scripts/singe.sh Arkbuild/usr/local/bin/singe.sh
+sudo cp emulators/hypseus-singe/scripts/daphne.sh Arkbuild/usr/local/bin/daphne.sh
 sudo chmod 777 Arkbuild/opt/hypseus-singe/hypseus-singe
 sudo chmod 777 Arkbuild/usr/local/bin/singe.sh
 sudo chmod 777 Arkbuild/usr/local/bin/daphne.sh

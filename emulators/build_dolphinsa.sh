@@ -22,8 +22,8 @@ else
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/dolphinsa.tar.gz Arkbuild/opt/dolphin/ Arkbuild/home/ark/.local/share/dolphin-emu/
 	sudo curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/dolphinsa.sh | grep -oP '(?<=TAG=").*?(?=")' > Arkbuild_package_cache/${CHIPSET}/dolphinsa.commit
 fi
-sudo cp -R dolphin/Config/ Arkbuild/home/ark/.local/share/dolphin-emu/
-sudo cp dolphin/scripts/dolphin.sh Arkbuild/usr/local/bin/
+sudo cp -R emulators/dolphin/Config/ Arkbuild/home/ark/.local/share/dolphin-emu/
+sudo cp emulators/dolphin/scripts/dolphin.sh Arkbuild/usr/local/bin/
 call_chroot "chown -R ark:ark /opt/"
 call_chroot "chown -R ark:ark /home/ark/"
 sudo chmod 777 Arkbuild/opt/dolphin/dolphin-emu-nogui

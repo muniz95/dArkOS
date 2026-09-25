@@ -70,21 +70,21 @@ fi
 sudo rm -rf Arkbuild/home/ark/EmulationStation-fcamod*
 sudo mkdir -p Arkbuild/etc/emulationstation/themes
 if [[ "${BUILD_ARMHF}" == "y" ]]; then
-  sudo cp Emulationstation/es_systems.cfg.${CHIPSET} Arkbuild/etc/emulationstation/es_systems.cfg
+  sudo cp tools/Emulationstation/es_systems.cfg.${CHIPSET} Arkbuild/etc/emulationstation/es_systems.cfg
 else
-  sudo cp Emulationstation/es_systems.cfg.${CHIPSET}-64bit_Only Arkbuild/etc/emulationstation/es_systems.cfg
+  sudo cp tools/Emulationstation/es_systems.cfg.${CHIPSET}-64bit_Only Arkbuild/etc/emulationstation/es_systems.cfg
 fi
-sudo cp Emulationstation/es_input.cfg.${UNIT} Arkbuild/etc/emulationstation/es_input.cfg
-sudo cp Emulationstation/es_settings.cfg.${UNIT} Arkbuild/home/ark/.emulationstation/es_settings.cfg
-sudo cp Emulationstation/emulationstation.sh.${UNIT} Arkbuild/usr/bin/emulationstation/emulationstation.sh
-sudo cp Emulationstation/fonts/* Arkbuild/usr/bin/emulationstation/resources/
+sudo cp tools/Emulationstation/es_input.cfg.${UNIT} Arkbuild/etc/emulationstation/es_input.cfg
+sudo cp tools/Emulationstation/es_settings.cfg.${UNIT} Arkbuild/home/ark/.emulationstation/es_settings.cfg
+sudo cp tools/Emulationstation/emulationstation.sh.${UNIT} Arkbuild/usr/bin/emulationstation/emulationstation.sh
+sudo cp tools/Emulationstation/fonts/* Arkbuild/usr/bin/emulationstation/resources/
 sudo mkdir -p Arkbuild/usr/share/fonts/truetype/droid/
 sudo wget -t 5 -T 30 --no-check-certificate https://github.com/aosp-mirror/platform_frameworks_base/raw/refs/heads/main/data/fonts/DroidSansFallbackFull.ttf -O Arkbuild/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf
-sudo cp -R Emulationstation/scripts/ Arkbuild/home/ark/.emulationstation/
+sudo cp -R tools/Emulationstation/scripts/ Arkbuild/home/ark/.emulationstation/
 sudo chmod -R 777 Arkbuild/home/ark/.emulationstation/scripts/*
 call_chroot "chown -R ark:ark /etc/emulationstation/"
 call_chroot "chown -R ark:ark /home/ark/"
 sudo chmod 777 Arkbuild/usr/bin/emulationstation/emulationstation.sh
-sudo cp Emulationstation/emulationstation.service Arkbuild/etc/systemd/system/emulationstation.service
+sudo cp tools/Emulationstation/emulationstation.service Arkbuild/etc/systemd/system/emulationstation.service
 call_chroot "systemctl enable emulationstation"
 

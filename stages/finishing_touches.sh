@@ -25,9 +25,9 @@ booti \${loadaddr} \${initrd_loadaddr} \${dtb_loadaddr}
 EOF
 
 if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rk2020" ] || [ "$UNIT" == "rg351p" ]; then
-  sudo cp logos/rotated/logo.bmp ${mountpoint}/
+  sudo cp system/logos/rotated/logo.bmp ${mountpoint}/
 else
-  sudo cp logos/unrotated/logo.bmp ${mountpoint}/
+  sudo cp system/logos/unrotated/logo.bmp ${mountpoint}/
 fi
 
 if [ -d "optional" ]; then
@@ -53,8 +53,8 @@ echo "$NAME" | sudo tee Arkbuild/etc/hostname
 echo -e "# This host address\n127.0.1.1\t${NAME}" | sudo tee -a Arkbuild/etc/hosts
 
 # Copy the necessary .asoundrc file for proper audio in emulationstation and emulators
-sudo cp audio/.asoundrc Arkbuild/home/ark/.asoundrc
-sudo cp audio/.asoundrcbak Arkbuild/home/ark/.asoundrcbak
+sudo cp system/audio/.asoundrc Arkbuild/home/ark/.asoundrc
+sudo cp system/audio/.asoundrcbak Arkbuild/home/ark/.asoundrcbak
 sudo chroot Arkbuild/ bash -c "chown ark:ark /home/ark/.asoundrc*"
 sudo chroot Arkbuild/ bash -c "ln -sfv /home/ark/.asoundrc /etc/asound.conf"
 sudo chroot Arkbuild/ bash -c "cp -fv /usr/share/alsa/alsa.conf /usr/share/alsa/alsa.conf.mednafen"
@@ -64,7 +64,7 @@ sudo chroot Arkbuild/ bash -c "sed -i '/\"\~\/.asoundrc\"/s//\"\~\/.asoundrc.gam
 
 # Sleep script
 sudo mkdir -p Arkbuild/usr/lib/systemd/system-sleep
-sudo cp scripts/sleep.${CHIPSET} Arkbuild/usr/lib/systemd/system-sleep/sleep
+sudo cp system/scripts/sleep.${CHIPSET} Arkbuild/usr/lib/systemd/system-sleep/sleep
 sudo chmod 777 Arkbuild/usr/lib/systemd/system-sleep/sleep
 
 # Set performance governor to ondemand on boot
@@ -72,28 +72,28 @@ sudo chroot Arkbuild/ bash -c "(crontab -l 2>/dev/null; echo \"@reboot /usr/loca
 
 # Speaker Toggle to set audio output to SPK on boot
 sudo mkdir -p Arkbuild/usr/local/bin
-sudo cp scripts/spktoggle.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/spktoggle.sh Arkbuild/usr/local/bin/
 sudo chmod 777 Arkbuild/usr/local/bin/spktoggle.sh
 sudo chroot Arkbuild/ bash -c "(crontab -l 2>/dev/null; echo \"@reboot /usr/local/bin/spktoggle.sh &\") | crontab -"
-sudo cp scripts/audiopath.service Arkbuild/etc/systemd/system/audiopath.service
-sudo cp scripts/audiostate.service Arkbuild/etc/systemd/system/audiostate.service
+sudo cp system/scripts/audiopath.service Arkbuild/etc/systemd/system/audiopath.service
+sudo cp system/scripts/audiostate.service Arkbuild/etc/systemd/system/audiostate.service
 sudo chroot Arkbuild/ bash -c "systemctl enable audiopath"
 sudo chroot Arkbuild/ bash -c "systemctl enable audiostate"
 
 # Copy necessary tools for expansion of ROOTFS and convert fat32 games partition to exfat on initial boot
-sudo cp scripts/expandtoexfat.sh.${CHIPSET} ${mountpoint}/expandtoexfat.sh
-sudo cp scripts/firstboot.sh ${mountpoint}/firstboot.sh
-sudo cp scripts/firstboot.service Arkbuild/etc/systemd/system/firstboot.service
+sudo cp system/scripts/expandtoexfat.sh.${CHIPSET} ${mountpoint}/expandtoexfat.sh
+sudo cp system/scripts/firstboot.sh ${mountpoint}/firstboot.sh
+sudo cp system/scripts/firstboot.service Arkbuild/etc/systemd/system/firstboot.service
 sudo chroot Arkbuild/ bash -c "systemctl enable firstboot"
 
 # Add hotkeydaemon service and python script
-sudo cp hotkeydaemon/killer_daemon.service Arkbuild/etc/systemd/system/killer_daemon.service
-sudo cp hotkeydaemon/killer_daemon.py Arkbuild/usr/local/bin/killer_daemon.py
+sudo cp system/hotkeydaemon/killer_daemon.service Arkbuild/etc/systemd/system/killer_daemon.service
+sudo cp system/hotkeydaemon/killer_daemon.py Arkbuild/usr/local/bin/killer_daemon.py
 sudo chmod 777 Arkbuild/usr/local/bin/killer_daemon.py
 sudo chroot Arkbuild/ bash -c "systemctl disable killer_daemon"
 
 # Add amiga script
-sudo cp amiga/amiga.sh Arkbuild/usr/local/bin/
+sudo cp emulators/amiga/amiga.sh Arkbuild/usr/local/bin/
 
 #Generate fstab to be used after EASYROMS expansion
 if [ "$ROOT_FILESYSTEM_FORMAT" == "btrfs" ]; then
@@ -117,8 +117,8 @@ sudo chroot Arkbuild/ bash -c "systemctl disable ModemManager polkit"
 sudo chroot Arkbuild/ bash -c "systemctl disable ssh"
 
 # Update Messaage of the Day
-sudo cp -f scripts/00-header Arkbuild/etc/update-motd.d/00-header
-sudo cp -f scripts/10-help-text Arkbuild/etc/update-motd.d/10-help-text
+sudo cp -f system/scripts/00-header Arkbuild/etc/update-motd.d/00-header
+sudo cp -f system/scripts/10-help-text Arkbuild/etc/update-motd.d/10-help-text
 sudo rm -f Arkbuild/etc/motd
 sudo chmod 777 Arkbuild/etc/update-motd.d/*
 
@@ -150,26 +150,26 @@ source ./stages/fetch_compat_libs.sh
 
 # Various tools available through Options added here
 sudo mkdir -p Arkbuild/opt/system/Advanced
-sudo cp dArkOS_Tools/*.sh Arkbuild/opt/system/
-sudo cp dArkOS_Tools/${CHIPSET}/*.sh Arkbuild/opt/system/Advanced/
-sudo cp dArkOS_Tools/Advanced/*.sh Arkbuild/opt/system/Advanced/
-sudo cp scripts/"Enable Quick Mode".sh Arkbuild/opt/system/Advanced/
+sudo cp tools/dArkOS_Tools/*.sh Arkbuild/opt/system/
+sudo cp tools/dArkOS_Tools/${CHIPSET}/*.sh Arkbuild/opt/system/Advanced/
+sudo cp tools/dArkOS_Tools/Advanced/*.sh Arkbuild/opt/system/Advanced/
+sudo cp system/scripts/"Enable Quick Mode".sh Arkbuild/opt/system/Advanced/
 if [[ "$UNIT" == *"rgb10"* ]] || [[ "$UNIT" == "rk2020" ]] || [[ "$UNIT" == *"oga"* ]]; then
-  sudo cp dArkOS_Tools/OGA/*.sh Arkbuild/opt/system/Advanced/
+  sudo cp tools/dArkOS_Tools/OGA/*.sh Arkbuild/opt/system/Advanced/
 else
-  sudo cp scripts/Switch* Arkbuild/usr/local/bin/
-  sudo cp scripts/"Switch to SD2 for Roms.sh" Arkbuild/opt/system/Advanced/
+  sudo cp system/scripts/Switch* Arkbuild/usr/local/bin/
+  sudo cp system/scripts/"Switch to SD2 for Roms.sh" Arkbuild/opt/system/Advanced/
 fi
 sudo chroot Arkbuild/ bash -c "chown -R ark:ark /opt"
 sudo chmod -R 777 Arkbuild/opt/system/
 
 # Add tool copy game roms for device RGB10
 if [[ "$UNIT" == *"rgb10"* ]]; then
-  sudo cp dArkOS_Tools/RGB10/*.sh Arkbuild/opt/system/
+  sudo cp tools/dArkOS_Tools/RGB10/*.sh Arkbuild/opt/system/
 fi
 
 # Copy performance scripts
-sudo cp scripts/perf* Arkbuild/usr/local/bin/
+sudo cp system/scripts/perf* Arkbuild/usr/local/bin/
 
 # Add preservation of SDL_VIDEO_EGL_DRIVER to sudoers
 cat <<EOF | sudo tee Arkbuild/etc/sudoers.d/ark_preserve_sdl_video_egl_driver
@@ -191,43 +191,43 @@ fi
 echo "ark              -       nice            -20" | sudo tee -a Arkbuild/etc/security/limits.conf
 
 # Copy various other backend tools
-sudo cp scripts/checkbrightonboot Arkbuild/usr/local/bin/
-sudo cp scripts/current_* Arkbuild/usr/local/bin/
-sudo cp scripts/finish.sh Arkbuild/usr/local/bin/
-sudo cp scripts/pause.sh Arkbuild/usr/local/bin/
-sudo cp scripts/finish.sh.qm Arkbuild/usr/local/bin/
-sudo cp scripts/pause.sh.qm Arkbuild/usr/local/bin/
-sudo cp scripts/finish.sh Arkbuild/usr/local/bin/finish.sh.orig
-sudo cp scripts/pause.sh Arkbuild/usr/local/bin/pause.sh.orig
-sudo cp scripts/speak_bat_life.sh Arkbuild/usr/local/bin/
-sudo cp scripts/spktoggle.sh Arkbuild/usr/local/bin/
-sudo cp scripts/timezones Arkbuild/usr/local/bin/
-sudo cp scripts/BaRT_QuickMode.sh Arkbuild/usr/local/bin/
-sudo cp scripts/"Enable Quick Mode".sh Arkbuild/usr/local/bin/
-sudo cp scripts/"Disable Quick Mode".sh Arkbuild/usr/local/bin/
-sudo cp scripts/arkos_ap_mode.sh Arkbuild/usr/local/bin/
-sudo cp scripts/auto_suspend* Arkbuild/usr/local/bin/
-sudo cp scripts/processcheck.sh Arkbuild/usr/local/bin/
-sudo cp scripts/autosuspend.service Arkbuild/etc/systemd/system/
+sudo cp system/scripts/checkbrightonboot Arkbuild/usr/local/bin/
+sudo cp system/scripts/current_* Arkbuild/usr/local/bin/
+sudo cp system/scripts/finish.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/pause.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/finish.sh.qm Arkbuild/usr/local/bin/
+sudo cp system/scripts/pause.sh.qm Arkbuild/usr/local/bin/
+sudo cp system/scripts/finish.sh Arkbuild/usr/local/bin/finish.sh.orig
+sudo cp system/scripts/pause.sh Arkbuild/usr/local/bin/pause.sh.orig
+sudo cp system/scripts/speak_bat_life.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/spktoggle.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/timezones Arkbuild/usr/local/bin/
+sudo cp system/scripts/BaRT_QuickMode.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/"Enable Quick Mode".sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/"Disable Quick Mode".sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/arkos_ap_mode.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/auto_suspend* Arkbuild/usr/local/bin/
+sudo cp system/scripts/processcheck.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/autosuspend.service Arkbuild/etc/systemd/system/
 sudo chroot Arkbuild/ bash -c "pip install --break-system-packages --root-user-action ignore inputs"
 sudo chroot Arkbuild/ bash -c "systemctl disable autosuspend"
-sudo cp scripts/wifi_importer.service Arkbuild/etc/systemd/system/
+sudo cp system/scripts/wifi_importer.service Arkbuild/etc/systemd/system/
 sudo chroot Arkbuild/ bash -c "systemctl enable wifi_importer"
-sudo cp scripts/keystroke.py Arkbuild/usr/local/bin/
-sudo cp scripts/b2.sh Arkbuild/usr/local/bin/
-sudo cp scripts/freej2me.sh Arkbuild/usr/local/bin/
-sudo cp scripts/easyrpg.sh Arkbuild/usr/local/bin/
-sudo cp scripts/get_last_played.sh Arkbuild/usr/local/bin/
-sudo cp scripts/gx4000.sh Arkbuild/usr/local/bin/
-sudo cp scripts/isitpng.sh Arkbuild/usr/local/bin/
-sudo cp scripts/neogeocd.sh Arkbuild/usr/local/bin/
-sudo cp scripts/netplay.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/keystroke.py Arkbuild/usr/local/bin/
+sudo cp system/scripts/b2.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/freej2me.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/easyrpg.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/get_last_played.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/gx4000.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/isitpng.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/neogeocd.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/netplay.sh Arkbuild/usr/local/bin/
 sudo mkdir -p Arkbuild/etc/hostapd
-sudo cp hostapd/hostapd.conf Arkbuild/etc/hostapd/
-sudo cp dnsmasq/dnsmasq.conf Arkbuild/etc/
-sudo cp scripts/sleep_governors.sh Arkbuild/usr/local/bin/
-sudo cp scripts/wasitpng.sh Arkbuild/usr/local/bin/
-sudo cp global/* Arkbuild/usr/local/bin/
+sudo cp system/hostapd/hostapd.conf Arkbuild/etc/hostapd/
+sudo cp system/dnsmasq/dnsmasq.conf Arkbuild/etc/
+sudo cp system/scripts/sleep_governors.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/wasitpng.sh Arkbuild/usr/local/bin/
+sudo cp system/global/* Arkbuild/usr/local/bin/
 # Disable winbind as connectivity to Active Directory is not needed
 sudo chroot Arkbuild/ bash -c "systemctl disable winbind"
 # Disable samba-ad-dc as connectivity to Active Directory is not needed as well as some other services
@@ -239,16 +239,16 @@ fi
 # Set the default graphical target to multi-user instead of graphical"
 sudo chroot Arkbuild/ bash -c "systemctl set-default multi-user.target"
 if [[ "$UNIT" == "rgb10" ]]; then
-  sudo cp device/rgb10/* Arkbuild/usr/local/bin/
+  sudo cp system/device/rgb10/* Arkbuild/usr/local/bin/
 elif [[ "$UNIT" == "rg351mp" ]] || [[ "$UNIT" == "g350" ]] || [[ "$UNIT" == "a10mini" ]]; then
-  sudo cp device/rg351mp/*.sh Arkbuild/usr/local/bin/
-  sudo cp device/rg351mp/*.py Arkbuild/usr/local/bin/
-  sudo cp device/rg351mp/*.green Arkbuild/usr/local/bin/
-  sudo cp device/rg351mp/*.red Arkbuild/usr/local/bin/
-  sudo cp device/rg351mp/fix_power_led Arkbuild/usr/local/bin/
-  sudo cp device/rg351mp/checkbrightonboot Arkbuild/usr/local/bin/
+  sudo cp system/device/rg351mp/*.sh Arkbuild/usr/local/bin/
+  sudo cp system/device/rg351mp/*.py Arkbuild/usr/local/bin/
+  sudo cp system/device/rg351mp/*.green Arkbuild/usr/local/bin/
+  sudo cp system/device/rg351mp/*.red Arkbuild/usr/local/bin/
+  sudo cp system/device/rg351mp/fix_power_led Arkbuild/usr/local/bin/
+  sudo cp system/device/rg351mp/checkbrightonboot Arkbuild/usr/local/bin/
   if [[ "$UNIT" == "a10mini" ]]; then
-    sudo cp device/a10mini/"Change LED to Green.sh" Arkbuild/opt/system/"Change LED to Orange.sh"
+    sudo cp system/device/a10mini/"Change LED to Green.sh" Arkbuild/opt/system/"Change LED to Orange.sh"
     sudo sed -i '/Green.sh/s//Orange.sh/g' Arkbuild/opt/system/"Change LED to Orange.sh"
 	sudo sed -i '/Red.sh/s//Blue.sh/g' Arkbuild/opt/system/"Change LED to Orange.sh"
     sudo cp Arkbuild/opt/system/"Change LED to Orange.sh" Arkbuild/usr/local/bin/"Change LED to Orange.sh"
@@ -259,16 +259,16 @@ elif [[ "$UNIT" == "rg351mp" ]] || [[ "$UNIT" == "g350" ]] || [[ "$UNIT" == "a10
     sudo chroot Arkbuild/ bash -c "chown -R ark:ark /opt"
     sudo chmod 777 Arkbuild/opt/system/"Change LED to Orange.sh"
   else
-    sudo cp device/rg351mp/"Change LED to Red.sh" Arkbuild/opt/system/
+    sudo cp system/device/rg351mp/"Change LED to Red.sh" Arkbuild/opt/system/
     sudo chroot Arkbuild/ bash -c "chown -R ark:ark /opt"
     sudo chmod 777 Arkbuild/opt/system/"Change LED to Red.sh"
   fi
-  sudo cp device/rg351mp/*.service Arkbuild/etc/systemd/system/
+  sudo cp system/device/rg351mp/*.service Arkbuild/etc/systemd/system/
   sudo chroot Arkbuild/ bash -c "systemctl enable 351mp batt_led"
 fi
 if [[ "$UNIT" == "g350" ]]; then
-  sudo cp scripts/g350/*.sh Arkbuild/usr/local/bin/
-  sudo cp scripts/g350/logo.service Arkbuild/etc/systemd/system/logo.service
+  sudo cp system/scripts/g350/*.sh Arkbuild/usr/local/bin/
+  sudo cp system/scripts/g350/logo.service Arkbuild/etc/systemd/system/logo.service
   sudo chroot Arkbuild/ bash -c "systemctl enable logo"
 fi
 
@@ -293,7 +293,7 @@ sudo chroot Arkbuild/ bash -c "ln -sfv /roms/bgmusic/ /home/ark/.emulationstatio
 sudo chroot Arkbuild/ touch /home/ark/.config/.GameLoadingIModePIC
 
 # Set default volume
-sudo cp audio/asound.state.${CHIPSET} Arkbuild/var/local/asound.state
+sudo cp system/audio/asound.state.${CHIPSET} Arkbuild/var/local/asound.state
 
 # Set SDL Video Driver for bash
 echo "export SDL_VIDEO_EGL_DRIVER=libEGL.so" | sudo tee Arkbuild/etc/profile.d/SDL_VIDEO.sh
@@ -363,9 +363,9 @@ EOF
 echo "${BUILD_DATE}" | sudo tee Arkbuild/home/ark/.config/.VERSION
 
 # Set boot up welcome text with distro and version
-sudo cp scripts/boot_text.sh Arkbuild/usr/local/bin/
+sudo cp system/scripts/boot_text.sh Arkbuild/usr/local/bin/
 sudo chmod 777 Arkbuild/usr/local/bin/boot_text.sh
-sudo cp scripts/welcome-message.service Arkbuild/etc/systemd/system/welcome-message.service
+sudo cp system/scripts/welcome-message.service Arkbuild/etc/systemd/system/welcome-message.service
 sudo chroot Arkbuild/ bash -c "systemctl enable welcome-message"
 
 # Mark completed dArkOS updates with this current build
@@ -464,17 +464,17 @@ sudo wget -t 3 -T 60 --no-check-certificate https://www.lexaloffle.com/bbs/cpost
 sudo wget -t 3 -T 60 --no-check-certificate https://www.lexaloffle.com/bbs/cposts/ch/cherrybomb-0.p8.png -O ${fat32_mountpoint}/pico-8/carts/cherrybomb-0.p8.png
 
 # Copy default game launch images
-sudo cp launchimages/loading.ascii.${UNIT} ${fat32_mountpoint}/launchimages/loading.ascii
-sudo cp launchimages/loading.jpg.${UNIT} ${fat32_mountpoint}/launchimages/loading.jpg
+sudo cp system/launchimages/loading.ascii.${UNIT} ${fat32_mountpoint}/launchimages/loading.ascii
+sudo cp system/launchimages/loading.jpg.${UNIT} ${fat32_mountpoint}/launchimages/loading.jpg
 
 # Copy default shutdown launch image
-sudo cp shutdownimages/bye.gif ${fat32_mountpoint}/shutdownimages/
+sudo cp system/shutdownimages/bye.gif ${fat32_mountpoint}/shutdownimages/
 
 # Copy various tools to roms folders
-sudo cp -a ecwolf/Scan* ${fat32_mountpoint}/wolf/
-sudo cp -a scummvm/scripts/Scan* ${fat32_mountpoint}/scummvm/
-sudo cp -a hypseus-singe/scripts/Scan* ${fat32_mountpoint}/alg/
-sudo cp -a scummvm/scripts/menu.scummvm ${fat32_mountpoint}/scummvm/
+sudo cp -a emulators/ecwolf/Scan* ${fat32_mountpoint}/wolf/
+sudo cp -a emulators/scummvm/scripts/Scan* ${fat32_mountpoint}/scummvm/
+sudo cp -a emulators/hypseus-singe/scripts/Scan* ${fat32_mountpoint}/alg/
+sudo cp -a emulators/scummvm/scripts/menu.scummvm ${fat32_mountpoint}/scummvm/
 
 # Clone some themes to the roms/themes folder
 sudo git clone --depth=1 https://github.com/Jetup13/es-theme-nes-box.git ${fat32_mountpoint}/themes/es-theme-nes-box

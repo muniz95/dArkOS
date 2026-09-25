@@ -24,12 +24,12 @@ else
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/gptokeyb.tar.gz Arkbuild/opt/inttools/gptokeyb
 	curl -s https://api.github.com/repos/christianhaitian/gptokeyb/commits/inttools | jq -r '.sha' > Arkbuild_package_cache/${CHIPSET}/gptokeyb.commit
 fi
-sudo cp inttools/* Arkbuild/opt/inttools/
+sudo cp tools/inttools/* Arkbuild/opt/inttools/
 call_chroot "chown -R ark:ark /opt/inttools"
 sudo chmod 777 Arkbuild/opt/inttools/osk.py
 
 # Copy some other tools that make use of gptokeyb
-sudo cp scripts/osk Arkbuild/usr/bin/
-sudo cp scripts/msgbox Arkbuild/usr/bin/
+sudo cp system/scripts/osk Arkbuild/usr/bin/
+sudo cp system/scripts/msgbox Arkbuild/usr/bin/
 sudo chmod 777 Arkbuild/usr/bin/osk
 sudo chmod 777 Arkbuild/usr/bin/msgbox

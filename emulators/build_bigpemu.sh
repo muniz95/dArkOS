@@ -36,6 +36,6 @@ else
 	echo "$arm64_link" > Arkbuild_package_cache/${CHIPSET}/bigpemu.commit
 fi
 call_chroot "chown -R ark:ark /opt/bigpemu/"
-sudo cp bigpemu/scripts/bigpemu.sh Arkbuild/usr/local/bin/
-sudo cp -R bigpemu/defaultconfigs/ Arkbuild/opt/bigpemu/
+sudo cp emulators/bigpemu/scripts/bigpemu.sh Arkbuild/usr/local/bin/
+sudo cp -R emulators/bigpemu/defaultconfigs/ Arkbuild/opt/bigpemu/
 sudo chmod 777 Arkbuild/usr/local/bin/bigpemu.sh

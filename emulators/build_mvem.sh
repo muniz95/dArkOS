@@ -15,7 +15,7 @@ else
 	  cp mvem /opt/mvem/ &&
 	  chmod 777 /opt/mvem/mvem
 	  "
-	sudo cp -R mvem/controls/ Arkbuild/opt/mvem/
+	sudo cp -R emulators/mvem/controls/ Arkbuild/opt/mvem/
 	if [ -f "Arkbuild_package_cache/${CHIPSET}/mvem.tar.gz" ]; then
 	  sudo rm -f Arkbuild_package_cache/${CHIPSET}/mvem.tar.gz
 	fi
@@ -27,5 +27,5 @@ else
 fi
 
 call_chroot "chown -R ark:ark /opt"
-sudo cp mvem/scripts/mvem.sh Arkbuild/usr/local/bin/
+sudo cp emulators/mvem/scripts/mvem.sh Arkbuild/usr/local/bin/
 sudo chmod 777 Arkbuild/usr/local/bin/mvem.sh

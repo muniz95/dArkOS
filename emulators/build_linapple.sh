@@ -28,9 +28,9 @@ else
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/linapple/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/linapple rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/linapplesa.commit
 fi
 
-sudo cp linapple/gamecontrollerdb.txt Arkbuild/opt/linapple/
-sudo cp -R linapple/configs/* Arkbuild/opt/linapple/
-sudo cp linapple/apple2.sh Arkbuild/usr/local/bin/
+sudo cp emulators/linapple/gamecontrollerdb.txt Arkbuild/opt/linapple/
+sudo cp -R emulators/linapple/configs/* Arkbuild/opt/linapple/
+sudo cp emulators/linapple/apple2.sh Arkbuild/usr/local/bin/
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/linapple/linapple
 sudo chmod 777 Arkbuild/usr/local/bin/apple2.sh

@@ -46,7 +46,7 @@ else
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/filemanager_${UNIT}.tar.gz Arkbuild/opt/dingux/
 	curl -s https://api.github.com/repos/christianhaitian/rs97-commander-sdl2/commits/${BRANCH} | jq -r '.sha' > Arkbuild_package_cache/${CHIPSET}/filemanager_${UNIT}.commit
 fi
-if [[ -f "filecommander/configs/oshgamepad.cfg.${DEVICE_CONFIG}" ]]; then
-  sudo cp filecommander/configs/oshgamepad.cfg.${DEVICE_CONFIG} Arkbuild/opt/dingux/oshgamepad.cfg
+if [[ -f "tools/filecommander/configs/oshgamepad.cfg.${DEVICE_CONFIG}" ]]; then
+  sudo cp tools/filecommander/configs/oshgamepad.cfg.${DEVICE_CONFIG} Arkbuild/opt/dingux/oshgamepad.cfg
 fi
 call_chroot "chown -R ark:ark /opt"

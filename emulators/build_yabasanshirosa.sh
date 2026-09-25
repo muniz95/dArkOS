@@ -28,5 +28,5 @@ else
 fi
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/yabasanshiro/yabasanshiro
-sudo cp yabasanshiro/saturn.sh Arkbuild/usr/local/bin/saturn.sh
+sudo cp emulators/yabasanshiro/saturn.sh Arkbuild/usr/local/bin/saturn.sh
 sudo chmod 777 Arkbuild/usr/local/bin/saturn.sh

@@ -30,8 +30,8 @@ else
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/lzdoom/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/lzdoom rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/lzdoom.commit
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/lzdoom.tar.gz Arkbuild/opt/lzdoom/ Arkbuild/home/ark/.config/lzdoom/
 fi
-sudo cp lzdoom/configs/${UNIT}/lzdoom.ini Arkbuild/home/ark/.config/lzdoom/
-sudo cp -rL lzdoom/backup/ Arkbuild/home/ark/.config/lzdoom/
+sudo cp emulators/lzdoom/configs/${UNIT}/lzdoom.ini Arkbuild/home/ark/.config/lzdoom/
+sudo cp -rL emulators/lzdoom/backup/ Arkbuild/home/ark/.config/lzdoom/
 call_chroot "chown -R ark:ark /home/ark/.config/"
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/lzdoom/*

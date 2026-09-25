@@ -21,9 +21,9 @@ else
 	sudo curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/xroar.sh | grep -oP '(?<=tarname=").*?(?=")' > Arkbuild_package_cache/${CHIPSET}/xroar.commit
 fi
 
-sudo cp -a xroar/coco.sh Arkbuild/usr/local/bin/
-sudo cp -R xroar/controls/ Arkbuild/opt/xroar/
-sudo cp -a xroar/xroar.gptk Arkbuild/opt/xroar/
+sudo cp -a emulators/xroar/coco.sh Arkbuild/usr/local/bin/
+sudo cp -R emulators/xroar/controls/ Arkbuild/opt/xroar/
+sudo cp -a emulators/xroar/xroar.gptk Arkbuild/opt/xroar/
 
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/xroar/xroar

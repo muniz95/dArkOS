@@ -18,5 +18,5 @@ else
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/filebrowser.tar.gz Arkbuild/usr/local/bin/filebrowser
 	echo "${fbver}" > Arkbuild_package_cache/${CHIPSET}/filebrowser.commit
 fi
-sudo cp filebrowser/filebrowser.db Arkbuild/home/ark/.config/
+sudo cp tools/filebrowser/filebrowser.db Arkbuild/home/ark/.config/
 call_chroot "chown -R ark:ark /home/ark/.config/filebrowser.db"

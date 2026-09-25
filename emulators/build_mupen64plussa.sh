@@ -25,9 +25,9 @@ else
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/mupen64plus-core/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/mupen64plus_core rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/mupen64plussa.commit
 fi
 sudo mkdir -p Arkbuild/home/ark/.config/mupen64plus
-sudo cp mupen64plus/configs/${UNIT}/mupen64plus.cfg Arkbuild/home/ark/.config/mupen64plus/
-sudo cp mupen64plus/*.ini Arkbuild/opt/mupen64plus/
-sudo cp mupen64plus/scripts/n64.sh Arkbuild/usr/local/bin/
+sudo cp emulators/mupen64plus/configs/${UNIT}/mupen64plus.cfg Arkbuild/home/ark/.config/mupen64plus/
+sudo cp emulators/mupen64plus/*.ini Arkbuild/opt/mupen64plus/
+sudo cp emulators/mupen64plus/scripts/n64.sh Arkbuild/usr/local/bin/
 call_chroot "chown -R ark:ark /home/ark/.config/"
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/mupen64plus/*

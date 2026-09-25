@@ -24,10 +24,10 @@ else
 	sudo curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/openmsx.sh | grep -oP '(?<=TAG=").*?(?=")' > Arkbuild_package_cache/${CHIPSET}/openmsx.commit
 fi
 
-sudo cp openmsx/configs/openmsx.gptk Arkbuild/opt/openmsx/backupconfig/openmsx/
-sudo cp openmsx/configs/commands.txt Arkbuild/opt/openmsx/backupconfig/openmsx/
-sudo cp openmsx/configs/gamecontrollerdb.txt Arkbuild/opt/openmsx/
-sudo cp openmsx/scripts/openmsx Arkbuild/usr/local/bin/
+sudo cp emulators/openmsx/configs/openmsx.gptk Arkbuild/opt/openmsx/backupconfig/openmsx/
+sudo cp emulators/openmsx/configs/commands.txt Arkbuild/opt/openmsx/backupconfig/openmsx/
+sudo cp emulators/openmsx/configs/gamecontrollerdb.txt Arkbuild/opt/openmsx/
+sudo cp emulators/openmsx/scripts/openmsx Arkbuild/usr/local/bin/
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/openmsx/openmsx
 sudo chmod 777 Arkbuild/usr/local/bin/openmsx

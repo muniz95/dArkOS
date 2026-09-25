@@ -22,7 +22,7 @@ else
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/openbor.tar.gz Arkbuild/opt/OpenBor/ 
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/openbor/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/openbor rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/openbor.commit
 fi
-sudo cp openbor/configs/master.cfg.${UNIT} Arkbuild/opt/OpenBor/Saves/master.cfg
-sudo cp openbor/OpenBor.sh Arkbuild/opt/OpenBor/OpenBor.sh
+sudo cp emulators/openbor/configs/master.cfg.${UNIT} Arkbuild/opt/OpenBor/Saves/master.cfg
+sudo cp emulators/openbor/OpenBor.sh Arkbuild/opt/OpenBor/OpenBor.sh
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/OpenBor/OpenBor.sh

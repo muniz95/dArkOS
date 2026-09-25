@@ -27,7 +27,7 @@ else
 fi
 
 sudo mkdir -p Arkbuild/home/ark/.config/flycast
-sudo cp flycast/config/emu.cfg Arkbuild/home/ark/.config/flycast/
+sudo cp emulators/flycast/config/emu.cfg Arkbuild/home/ark/.config/flycast/
 call_chroot "chown -R ark:ark /opt/"
 call_chroot "chown -R ark:ark /home/ark/.config/flycast/"
 sudo chmod 777 Arkbuild/opt/flycastsa/flycast

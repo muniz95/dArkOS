@@ -7,14 +7,14 @@ if [ ! -d "$KERNEL_SRC" ]; then
 fi
 cd $KERNEL_SRC
 # Change the boot logo depending on the device
-if [[ -e "../logos/unrotated/dArkos${UNIT}.png" ]]; then
+if [[ -e "../system/logos/unrotated/dArkos${UNIT}.png" ]]; then
   apt list --installed 2>/dev/null | grep -q "netpbm"
   if [[ $? != "0" ]]; then
     sudo apt -y update
     sudo apt -y install netpbm
   fi	
-  pngtopnm ../logos/unrotated/dArkos${UNIT}.png | ppmquant 224 | pnmnoraw > drivers/video/logo/logo_linux_clut224.ppm
-  pngtopnm ../logos/unrotated/dArkoshdmi.png | ppmquant 224 | pnmnoraw > drivers/video/logo/logo_hdmi_clut224.ppm
+  pngtopnm ../system/logos/unrotated/dArkos${UNIT}.png | ppmquant 224 | pnmnoraw > drivers/video/logo/logo_linux_clut224.ppm
+  pngtopnm ../system/logos/unrotated/dArkoshdmi.png | ppmquant 224 | pnmnoraw > drivers/video/logo/logo_hdmi_clut224.ppm
 fi
 
 make ARCH=arm64 rk3566_optimized_linux_defconfig
@@ -99,8 +99,8 @@ mkdir -p lib/firmware/rtl_bt/
 if [[ "$UNIT" != "rgb20pro" ]] && [[ "$UNIT" != *"miniloong"* ]]; then
   sudo cp ../Arkbuild/usr/lib/firmware/rtl_bt/rtl8821cs_* lib/firmware/rtl_bt/
 else
-  sudo cp ../firmware/rtl8723ds/rtl8723ds_config.bin lib/firmware/rtl_bt/rtl8723d_config.bin
-  sudo cp ../firmware/rtl8723ds/rtl8723ds_fw.bin lib/firmware/rtl_bt/rtl8723d_fw.bin
+  sudo cp ../system/firmware/rtl8723ds/rtl8723ds_config.bin lib/firmware/rtl_bt/rtl8723d_config.bin
+  sudo cp ../system/firmware/rtl8723ds/rtl8723ds_fw.bin lib/firmware/rtl_bt/rtl8723d_fw.bin
 fi
 find . | cpio -H newc -o | gzip -c > ../uInitrd
 sudo mv ../uInitrd ../${mountpoint}/uInitrd
@@ -117,15 +117,15 @@ if [[ "$UNIT" == "503" ]] || [[ "$UNIT" == *"353"* ]] || [[ "$UNIT" == *"miniloo
   cd rkbin/tools
   #cp ../../arch/arm64/boot/dts/rockchip/${UNIT_DTB}.dtb .
   if [[ "$UNIT" == "503" ]]; then
-    cp ../../../misc/rk3566/device_off_charging_bmps/rg503/* .
+    cp ../../../system/misc/rk3566/device_off_charging_bmps/rg503/* .
     #cp ../../arch/arm64/boot/dts/rockchip/${UNIT_DTB}.dtb .
     #cp ../../arch/arm64/boot/dts/rockchip/${UNIT_DTB}.dtb rk-kernel.dtb
   elif [[ "$UNIT" == *"miniloong"* ]]; then
-    cp ../../../misc/rk3566/device_off_charging_bmps/miniloong/*.bmp .
+    cp ../../../system/misc/rk3566/device_off_charging_bmps/miniloong/*.bmp .
     #cp ../../arch/arm64/boot/dts/rockchip/${UNIT_DTB}.dtb .
     cp ../../arch/arm64/boot/dts/rockchip/${UNIT_DTB}-uboot.dtb rk-kernel.dtb
   else
-    cp ../../../misc/rk3566/device_off_charging_bmps/rg353/* .
+    cp ../../../system/misc/rk3566/device_off_charging_bmps/rg353/* .
   fi
   # Use Anbernic's resource.img files to provide onscreen battery charging state while off
   ./resource_tool --pack *.bmp rk-kernel.dtb

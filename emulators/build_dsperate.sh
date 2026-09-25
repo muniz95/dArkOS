@@ -20,12 +20,12 @@ else
 	sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/dsperate.tar.gz Arkbuild/opt/DSperate/
 	sudo git --git-dir=Arkbuild/home/ark/${CHIPSET}_core_builds/DSperate/.git --work-tree=Arkbuild/home/ark/${CHIPSET}_core_builds/DSperate rev-parse HEAD > Arkbuild_package_cache/${CHIPSET}/dsperate.commit
 fi
-if [[ -e "DSperate/configs/dsperate.ini.$UNIT" ]]; then
-  sudo cp -L DSperate/configs/dsperate.ini.${UNIT} Arkbuild/opt/DSperate/config/dsperate.ini
+if [[ -e "emulators/DSperate/configs/dsperate.ini.$UNIT" ]]; then
+  sudo cp -L emulators/DSperate/configs/dsperate.ini.${UNIT} Arkbuild/opt/DSperate/config/dsperate.ini
 else
-  sudo cp -L DSperate/configs/dsperate.ini.${CHIPSET} Arkbuild/opt/DSperate/config/dsperate.ini
+  sudo cp -L emulators/DSperate/configs/dsperate.ini.${CHIPSET} Arkbuild/opt/DSperate/config/dsperate.ini
 fi
-sudo cp -a DSperate/scripts/nds.sh Arkbuild/usr/local/bin/
+sudo cp -a emulators/DSperate/scripts/nds.sh Arkbuild/usr/local/bin/
 
 call_chroot "chown -R ark:ark /opt/"
 sudo chmod 777 Arkbuild/opt/DSperate/dsperate
