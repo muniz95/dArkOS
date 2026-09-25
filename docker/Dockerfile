@@ -22,6 +22,7 @@ RUN dpkg --add-architecture i386 && \
       btrfs-progs \
       build-essential \
       ccache \
+      cpio \
       curl \
       debconf-utils \
       debootstrap \
@@ -51,9 +52,11 @@ RUN dpkg --add-architecture i386 && \
       rsync \
       sudo \
       u-boot-tools \
+      unzip \
       xfsprogs \
       xz-utils \
       zlib1g:i386 \
+      zstd \
       apt-cacher-ng \
       && \
     rm -rf /var/lib/apt/lists/*

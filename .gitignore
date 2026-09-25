@@ -1,6 +1,7 @@
 *.log
-.log.*
+*.log.*
 Arkbuild/
+Arkbuild32/
 Ark_devenv/
 Ark_devenv32/
 Arkbuild_ccache/
@@ -13,6 +14,6 @@ odroidgoA-4.4.y/
 prebuilts/
 rg351/
 *.img
-.img.*
+*.img.*
 wget-log*
 build_step.log*

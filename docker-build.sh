@@ -55,7 +55,18 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ "$REBUILD" -eq 1 ] || ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+# The entrypoint and Dockerfile are baked into the image (only the repo is
+# bind-mounted), so rebuild whenever anything under docker/ is newer than it -
+# otherwise edits there are silently ignored by later runs.
+image_is_stale() {
+  local created newest
+  created="$(docker image inspect -f '{{.Created}}' "$IMAGE" 2>/dev/null)" || return 0
+  created="$(date -d "$created" +%s 2>/dev/null)" || return 0
+  newest="$(find docker -type f -printf '%T@\n' | sort -n | tail -1 | cut -d. -f1)"
+  [ -n "$newest" ] && [ "$newest" -gt "$created" ]
+}
+
+if [ "$REBUILD" -eq 1 ] || image_is_stale; then
   echo ">> Building $IMAGE ..."
   docker build -t "$IMAGE" -f docker/Dockerfile .
 fi

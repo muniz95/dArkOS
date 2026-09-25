@@ -89,9 +89,14 @@ usermod -aG sudo "${BUILD_USER}" 2>/dev/null || true
 # Passwordless sudo, and keep the caller's PATH (the build puts ccache and the
 # cross toolchain on PATH and then calls `sudo make ...`) - mirrors the
 # ark-no-secure-path drop-in the build creates inside the chroots.
+# ARCH and CROSS_COMPILE are deliberately NOT kept: every `sudo chroot` would
+# carry them into the arm chroots, where premake4 Makefiles put $(ARCH) into
+# CFLAGS (breaking libgo2) and configure scripts pick ${CROSS_COMPILE}gcc
+# (bypassing the gcc-12 default, breaking retroarch). The host-side `sudo make`
+# kernel calls pass both on the command line instead.
 {
   printf 'Defaults !secure_path\n'
-  printf 'Defaults env_keep += "PATH CCACHE_DIR CROSS_COMPILE ARCH KCFLAGS"\n'
+  printf 'Defaults env_keep += "PATH CCACHE_DIR KCFLAGS"\n'
   printf '%s ALL=(ALL) NOPASSWD: ALL\n' "${BUILD_USER}"
 } > /etc/sudoers.d/darkos-nopasswd
 chmod 0440 /etc/sudoers.d/darkos-nopasswd

@@ -61,7 +61,7 @@ If you are not on Ubuntu, or you would rather not install the toolchain and an `
       - `./docker-build.sh shell` - interactive shell inside the build environment.
       - `./docker-build.sh devenv` / `devenv32` - build only a development chroot.
       - `./docker-build.sh clean` / `clean_complete` - the corresponding `make` clean targets.
-      - `./docker-build.sh --rebuild <target>` - rebuild the Docker image first (after changing `docker/`).
+      - `./docker-build.sh --rebuild <target>` - force a rebuild of the Docker image first. Not needed after changing `docker/`: the image is rebuilt automatically when anything there is newer than it.
       - `./docker-build.sh step UNIT=<device> STEP=<script.sh>` - debug a single build step (e.g. `UNIT=rg351p STEP=build_retroarch.sh`) without running a full device build. See "Debugging a single build step" below.
    - Notes:
       - Build knobs are passed straight through from your environment, e.g. `BUILD_KODI=y ./docker-build.sh rg353m` or `DEBIAN_CODE_NAME=sid BUILD_ARMHF=n ./docker-build.sh rgb30`.

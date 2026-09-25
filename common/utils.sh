@@ -168,7 +168,10 @@ function remove_arkbuild32() {
   return 0
 }
 
-updateapt="N"
+# Chroots whose sources.list has been extended and `apt update`d. Tracked per
+# chroot: Arkbuild and Arkbuild32 each need their own contrib/non-free sources
+# and package lists.
+APT_UPDATED_CHROOTS=""
 function install_package() {
   if [ "$1" == "32" ]; then
     NEEDED_ARCH=""
@@ -197,18 +200,34 @@ function install_package() {
   done
 
   if [ "${#missinglibs[@]}" -gt 0 ]; then
-    if [[ "$updateapt" == "N" ]]; then
+    if [[ " ${APT_UPDATED_CHROOTS} " != *" ${CHROOT_DIR} "* ]]; then
       if test -z "$(cat ${CHROOT_DIR}/etc/apt/sources.list | grep contrib)"
       then
         sudo sed -i '/main/s//main contrib non-free non-free-firmware/' ${CHROOT_DIR}/etc/apt/sources.list
       fi
       sudo chroot ${CHROOT_DIR}/ apt -y update
-      updateapt="Y"
+      APT_UPDATED_CHROOTS+=" ${CHROOT_DIR}"
     fi
     sudo chroot ${CHROOT_DIR}/ bash -c "DEBIAN_FRONTEND=noninteractive eatmydata apt -y install ${missinglibs[*]}"
     if [[ $? != "0" ]]; then
+      # apt aborts the whole transaction if any one package is unavailable,
+      # so fall back to one package at a time to install everything we can.
       echo " "
-      echo "Could not install one or more needed libraries: ${missinglibs[*]}."
+      echo "Batch install failed, retrying the packages one at a time..."
+      failedlibs=()
+      for lib in "${missinglibs[@]}"
+      do
+        sudo chroot ${CHROOT_DIR}/ bash -c "DEBIAN_FRONTEND=noninteractive eatmydata apt -y install ${lib}"
+        if [[ $? != "0" ]]; then
+          failedlibs+=("${lib}")
+        fi
+      done
+      if [ "${#failedlibs[@]}" -gt 0 ]; then
+        echo " "
+        echo "Could not install needed libraries: ${failedlibs[*]}."
+      else
+        echo "${missinglibs[*]} were successfully installed."
+      fi
     else
       echo "${missinglibs[*]} were successfully installed."
     fi
@@ -228,7 +247,7 @@ function protect_package() {
      if [[ $? != "0" ]]; then
        echo "${protectedlib} could not mark as manually installed."
      else
-	   echo "$${protectedlib} has been marked as manually installed."
+	   echo "${protectedlib} has been marked as manually installed."
      fi
   done
 }

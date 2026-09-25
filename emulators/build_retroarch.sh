@@ -4,7 +4,7 @@
 if [ -f "Arkbuild_package_cache/${CHIPSET}/retroarch_${UNIT}.tar.gz" ] && [ "$(cat Arkbuild_package_cache/${CHIPSET}/retroarch_${UNIT}.commit)" == "$(curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/retroarch.sh | grep -oP '(?<=tag=").*?(?=")')" ]; then
     sudo tar -xvzpf Arkbuild_package_cache/${CHIPSET}/retroarch_${UNIT}.tar.gz
 else
-	while true
+	for attempt in 1 2 3
 	do
 	  call_chroot "cd /home/ark &&
 		cd ${CHIPSET}_core_builds &&
@@ -12,12 +12,13 @@ else
 		[ -d retroarch ] && rm -rf retroarch* || echo \"Cloning into retroarch\" &&
 		eatmydata ./builds-alt.sh retroarch
 		"
-	  if [[ "$?" -ne "0" ]]; then
-		sleep 30
-		continue
-	  else
+	  if [[ "$?" -eq "0" ]]; then
 		break
+	  elif [[ "$attempt" -eq "3" ]]; then
+		echo "retroarch failed to build after 3 attempts.  Stopping here."
+		exit 1
 	  fi
+	  sleep 30
 	done
 
 	sudo mkdir -p Arkbuild/opt/retroarch/bin
@@ -120,19 +121,20 @@ sudo rm -rf Arkbuild/home/ark/.config/retroarch/shaders/shaders_glsl/Sharp-Shimm
 if [ -f "Arkbuild_package_cache/${CHIPSET}/easyrpg.tar.gz" ] && [ "$(cat Arkbuild_package_cache/${CHIPSET}/easyrpg.commit)" = "$(curl -s https://raw.githubusercontent.com/christianhaitian/${CHIPSET}_core_builds/refs/heads/master/scripts/easyrpg.sh | grep -oP '(?<=tag=").*?(?=")')" ]; then
     sudo tar -xvzpf Arkbuild_package_cache/${CHIPSET}/easyrpg.tar.gz
 else
-	while true
+	for attempt in 1 2 3
 	do
 	  call_chroot "cd /home/ark &&
 		cd ${CHIPSET}_core_builds &&
 		[ -d Player ] && rm -rf Player || echo \"Cloning into Player\" &&
 		eatmydata ./builds-alt.sh easyrpg
 		"
-	  if [[ "$?" -ne "0" ]]; then
-		sleep 30
-		continue
-	  else
+	  if [[ "$?" -eq "0" ]]; then
 		break
+	  elif [[ "$attempt" -eq "3" ]]; then
+		echo "easyrpg failed to build after 3 attempts.  Stopping here."
+		exit 1
 	  fi
+	  sleep 30
 	done
 	sudo cp Arkbuild/home/ark/${CHIPSET}_core_builds/cores64/easyrpg_libretro.so Arkbuild/home/ark/.config/retroarch/cores/
 	sudo cp Arkbuild/home/ark/${CHIPSET}_core_builds/cores64/liblcf.so.0 Arkbuild/usr/lib/aarch64-linux-gnu/
@@ -147,13 +149,16 @@ else
 fi
 
 # Build freej2me-lr.jar and freej2me-plus-lr.jar
-if [ -f "Arkbuild_package_cache/${CHIPSET}/freej2me-plus.tar.gz" ] && [ "$(cat Arkbuild_package_cache/${CHIPSET}/freej2me-plus.commit)" = "$(curl --silent https://api.github.com/repos/TASEmulators/freej2me-plus/releases | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')" ]; then
+# freej2me-plus is built from its latest release tag (the same one recorded in
+# the cache) rather than the default branch, whose build.xml changes under us.
+FREEJ2ME_PLUS_TAG="$(curl --silent https://api.github.com/repos/TASEmulators/freej2me-plus/releases | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')"
+if [ -f "Arkbuild_package_cache/${CHIPSET}/freej2me-plus.tar.gz" ] && [ "$(cat Arkbuild_package_cache/${CHIPSET}/freej2me-plus.commit)" = "${FREEJ2ME_PLUS_TAG}" ]; then
     sudo tar -xvzpf Arkbuild_package_cache/${CHIPSET}/freej2me-plus.tar.gz
 else
    call_chroot "cd /home/ark &&
 		cd ${CHIPSET}_core_builds &&
 		[ -d freej2me-plus ] && rm -rf freej2me-plus || echo \"Cloning into freej2me-plus\" &&
-		git clone --recursive https://github.com/TASEmulators/freej2me-plus.git &&
+		git clone --recursive ${FREEJ2ME_PLUS_TAG:+--branch ${FREEJ2ME_PLUS_TAG}} https://github.com/TASEmulators/freej2me-plus.git &&
 		cd freej2me-plus &&
 		sed -i 's/freej2me-lr.jar/freej2me-plus-lr.jar/' build.xml &&
 		sed -i 's/1.6/1.8/' build.xml &&
@@ -168,7 +173,7 @@ else
 	  sudo rm -f Arkbuild_package_cache/${CHIPSET}/freej2me-plus.commit
    fi
    sudo tar -czpf Arkbuild_package_cache/${CHIPSET}/freej2me-plus.tar.gz Arkbuild/usr/local/bin/freej2me_files/freej2me-plus-lr.jar
-   sudo curl --silent https://api.github.com/repos/TASEmulators/freej2me-plus/releases | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' > Arkbuild_package_cache/${CHIPSET}/freej2me-plus.commit
+   echo "${FREEJ2ME_PLUS_TAG}" | sudo tee Arkbuild_package_cache/${CHIPSET}/freej2me-plus.commit > /dev/null
 fi
 if [ -f "Arkbuild_package_cache/${CHIPSET}/freej2me.tar.gz" ] && [ "$(cat Arkbuild_package_cache/${CHIPSET}/freej2me.commit)" == "$(curl -s https://api.github.com/repos/hex007/freej2me/commits/master | jq -r '.sha')" ]; then
     sudo tar -xvzpf Arkbuild_package_cache/${CHIPSET}/freej2me.tar.gz
@@ -198,7 +203,7 @@ if [[ "${BUILD_ARMHF}" == "y" ]]; then
 	else
 		setup_arkbuild32
 		sudo chroot Arkbuild32/ mkdir -p /home/ark
-		while true
+		for attempt in 1 2 3
 		do
 		  call_chroot32 "cd /home/ark &&
 			if [ ! -d ${CHIPSET}_core_builds ]; then git clone https://github.com/christianhaitian/${CHIPSET}_core_builds.git; fi &&
@@ -207,12 +212,13 @@ if [[ "${BUILD_ARMHF}" == "y" ]]; then
 			[ -d retroarch ] && rm -rf retroarch* || echo \"Cloning into retroarch\" &&
 			./builds-alt.sh retroarch
 			"
-		  if [[ "$?" -ne "0" ]]; then
-			sleep 30
-			continue
-		  else
+		  if [[ "$?" -eq "0" ]]; then
 			break
+		  elif [[ "$attempt" -eq "3" ]]; then
+			echo "retroarch32 failed to build after 3 attempts.  Stopping here."
+			exit 1
 		  fi
+		  sleep 30
 		done
 		sudo mkdir -p Arkbuild/home/ark/.config/retroarch32/filters/video
 		sudo mkdir -p Arkbuild/home/ark/.config/retroarch32/filters/audio
