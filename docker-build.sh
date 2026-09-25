@@ -69,6 +69,9 @@ if [ -t 0 ]; then TTY_FLAGS=(-it); else TTY_FLAGS=(-i); fi
 
 RUN_ARGS=(
   --rm
+  # tini as PID 1: make/bash as PID 1 ignore Ctrl+C and never reap apt-cacher-ng,
+  # which leaves the container (and your terminal) hanging after an interrupt.
+  --init
   "${TTY_FLAGS[@]}"
   --privileged
   -v "$PWD":/darkos
