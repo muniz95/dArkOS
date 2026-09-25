@@ -1,4 +1,6 @@
 #!/bin/bash
+# Run from the repo root: step scripts, asset dirs and outputs are resolved relative to it
+cd "$(dirname "$(readlink -f "$0")")/.."
 
 # Build Kodi package
 DEBIAN_CODE_NAME="trixie"
@@ -15,7 +17,7 @@ fi
 # Ensure libmali is installed for rk3566 in devenv
 if test -z "$(ls -l ${KODI_DEVENV}/usr/lib/aarch64-linux-gnu/libMali.so | grep g52- | tr -d '\0')"
 then
-  $(grep g52 utils.sh)
+  $(grep g52 common/utils.sh)
   sudo wget -t 3 -T 60 --no-check-certificate https://github.com/christianhaitian/${CHIPSET}_core_builds/raw/refs/heads/master/mali/aarch64/${whichmali} -O ${KODI_DEVENV}/usr/lib/aarch64-linux-gnu/${whichmali}
   cd ${KODI_DEVENV}/usr/lib/aarch64-linux-gnu
   sudo ln -sf ${whichmali} libMali.so
@@ -40,7 +42,7 @@ while read KODI_NEEDED_DEV_PACKAGE; do
   if [[ ! "$KODI_NEEDED_DEV_PACKAGE" =~ ^# ]]; then
     sudo chroot ${KODI_DEVENV} bash -c "apt -y install ${KODI_NEEDED_DEV_PACKAGE}"
   fi
-done <kodi_needed_dev_packages.txt
+done <lists/kodi_needed_dev_packages.txt
 if [[ ! -f ${KODI_DEVENV}/home/ark/.ffmpeg_mpp_rga_ready ]]; then
   	sudo chroot ${KODI_DEVENV} bash -c "cd /home/ark &&
 	  git clone -b jellyfin-mpp --depth=1 https://github.com/nyanmisaka/mpp.git rkmpp &&
@@ -97,7 +99,7 @@ fi
 
 sudo rm -rf ${KODI_DEVENV}/home/ark/kodi
 sudo cp -R kodi/userdata/ ${KODI_DEVENV}/opt/kodi/
-sudo cp kodi_needed_dev_packages.txt ${KODI_DEVENV}/opt/kodi/kodi_needed_packages.txt
+sudo cp lists/kodi_needed_dev_packages.txt ${KODI_DEVENV}/opt/kodi/kodi_needed_packages.txt
 # Rename exit to dArkOS within default estuary skin
 sudo chroot ${KODI_DEVENV} bash -c "sed -i '/Exit to ArkOS/s//Exit to dArkOS/' /opt/kodi/share/kodi/addons/skin.estuary/xml/DialogButtonMenu.xml"
 sudo chroot ${KODI_DEVENV} bash -c "chown -R ark:ark /opt/kodi/"

@@ -1,4 +1,6 @@
 #!/bin/bash
+# Run from the repo root: step scripts, asset dirs and outputs are resolved relative to it
+cd "$(dirname "$(readlink -f "$0")")/.."
 #exec 3>&1 4>&2
 #trap 'exec 2>&4 1>&3' 0 1 2 3
 #exec 1>build.log 2>&1
@@ -94,7 +96,7 @@ if [ -d "${CHROOT_DIR}" ]; then
 fi
 mkdir -p ${CHROOT_DIR}/
 # Let's make sure necessary tools are available
-source ./prepare.sh
+source ./stages/prepare.sh
 echo -e "Boostraping Debian....\n\n"
 # Bootstrap base system
 if [ "$1" == "32" ]; then
@@ -138,14 +140,14 @@ while read NEEDED_PACKAGE; do
   if [[ ! "$NEEDED_PACKAGE" =~ ^# ]]; then
     install_package $BIT "${NEEDED_PACKAGE}"
   fi
-done <needed_packages.txt
+done <lists/needed_packages.txt
 
 # Install build dependencies
 while read NEEDED_DEV_PACKAGE; do
   if [[ ! "$NEEDED_DEV_PACKAGE" =~ ^# ]]; then
     install_package $BIT "${NEEDED_DEV_PACKAGE}"
   fi
-done <needed_dev_packages.txt
+done <lists/needed_dev_packages.txt
 
 # Symlink fix for DRM headers
 sudo chroot ${CHROOT_DIR}/ bash -c "ln -s /usr/include/libdrm/ /usr/include/drm"

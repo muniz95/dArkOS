@@ -89,7 +89,7 @@ while read RETROARCH_CORE; do
     fi
   fi
   sleep 5
-done <retroarch_cores.txt
+done <lists/retroarch_cores.txt
 
 # Copy other core info files not available from libretro's repo
 sudo cp core_info_files/* Arkbuild/home/ark/.config/retroarch/cores/
@@ -278,7 +278,7 @@ if [[ "${BUILD_ARMHF}" == "y" ]]; then
 		fi
 	  fi
 	  sleep 5
-	done <retroarch_cores32.txt
+	done <lists/retroarch_cores32.txt
 
 	# Copy other core info files not available from libretro's repo
 	sudo cp core_info_files/* Arkbuild/home/ark/.config/retroarch32/cores/

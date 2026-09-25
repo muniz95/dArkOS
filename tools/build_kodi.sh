@@ -13,7 +13,7 @@ while read KODI_NEEDED_DEV_PACKAGE; do
   if [[ ! "$KODI_NEEDED_DEV_PACKAGE" =~ ^# ]]; then
     install_package 64 "${KODI_NEEDED_DEV_PACKAGE}"
   fi
-done <kodi_needed_dev_packages.txt
+done <lists/kodi_needed_dev_packages.txt
 source ./build_ffmpeg
 call_chroot "cd /home/ark &&
   mkdir -p kodi &&
@@ -38,5 +38,5 @@ while read KODI_NEEDED_DEV_PACKAGE; do
   if [[ ! "$KODI_NEEDED_DEV_PACKAGE" =~ ^# ]] && [[ "$KODI_NEEDED_DEV_PACKAGE" == *"-dev"* ]]; then
     call_chroot "apt remove -y $KODI_NEEDED_DEV_PACKAGE"
   fi
-done <kodi_needed_dev_packages.txt
+done <lists/kodi_needed_dev_packages.txt
 source ./build_ffmpeg

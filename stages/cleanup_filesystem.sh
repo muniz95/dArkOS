@@ -89,7 +89,7 @@ if [[ "${BUILD_ARMHF}" == "y" ]]; then
     if [[ ! "$NEEDED_PACKAGE" =~ ^# ]]; then
       install_package armhf ${NEEDED_PACKAGE}
     fi
-  done <needed_packages32.txt
+  done <lists/needed_packages32.txt
   sync Arkbuild
 fi
 
@@ -100,7 +100,7 @@ if [[ "$CHIPSET" == *"3566"* ]] && [[ "$BUILD_KODI" == "y" ]]; then
       install_package 64 ${KODI_NEEDED_PACKAGE}
       protect_package 64 ${KODI_NEEDED_PACKAGE}
     fi
-  done <kodi_needed_dev_packages.txt
+  done <lists/kodi_needed_dev_packages.txt
 fi
 
 while read NEEDED_PACKAGE; do
@@ -117,7 +117,7 @@ while read NEEDED_PACKAGE; do
       fi
     fi 
   fi
-done <needed_packages.txt
+done <lists/needed_packages.txt
 sync
 
 if [[ "$BUILD_BLUEALSA" == "y" ]]; then
@@ -126,7 +126,7 @@ if [[ "$BUILD_BLUEALSA" == "y" ]]; then
       install_package 64 ${BLUETOOTH_NEEDED_PACKAGE}
       protect_package 64 ${BLUETOOTH_NEEDED_PACKAGE}
     fi
-  done <bluetooth_needed_packages.txt
+  done <lists/bluetooth_needed_packages.txt
   call_chroot "systemctl disable watchforbtaudio bluetooth bluealsa"
 fi
 

@@ -6,8 +6,11 @@
 # it does NOT produce a flashable device image.
 #
 # Usage:
-#   UNIT=rg351p STEP=build_retroarch.sh ./build_step.sh
-#   UNIT=rg351p STEP="build_sdl2.sh build_retroarch.sh" ./build_step.sh
+#   UNIT=rg351p STEP=build_retroarch.sh ./dev/build_step.sh
+#   UNIT=rg351p STEP="build_sdl2.sh build_retroarch.sh" ./dev/build_step.sh
+#   UNIT=rg351p STEP=emulators/build_retroarch.sh ./dev/build_step.sh
+#
+# Bare names are looked up in stages/, emulators/, tools/ and libs/.
 #
 # Or via make / docker-build.sh:
 #   make step UNIT=rg351p STEP=build_retroarch.sh
@@ -34,6 +37,8 @@
 # starts fresh again.
 set -o pipefail
 
+cd "$(dirname "$(readlink -f "$0")")/.."
+
 : "${UNIT:?Set UNIT=<device>, e.g. UNIT=rg351p}"
 : "${STEP:?Set STEP=<script.sh>, e.g. STEP=build_retroarch.sh}"
 
@@ -47,14 +52,14 @@ fi
 
 (
 # Deliberately no `set -e` here, matching every build_<device>.sh (e.g.
-# build_rg351p.sh) and the step scripts they source: those rely on manual
+# devices/build_rg351p.sh) and the step scripts they source: those rely on manual
 # `verify_action` / `if [[ $? != 0 ]]` checks and expect to keep running
 # past commands that return non-zero as normal control flow (e.g. dpkg -s
 # probes in install_package). `set -e` makes the whole subshell exit
 # silently on the first such non-zero, with no error text - that's what
 # was happening here.
 
-source ./chipset_for_unit.sh
+source ./common/chipset_for_unit.sh
 export CHIPSET UNIT
 
 FILESYSTEM="ArkOS_File_System.img"
@@ -64,8 +69,8 @@ ROOT_FILESYSTEM_MOUNT_OPTIONS="defaults,noatime,compress=zlib:1"
 
 echo "Building step(s) '${STEP}' for UNIT=${UNIT} (CHIPSET=${CHIPSET})"
 
-source ./utils.sh
-source ./prepare.sh
+source ./common/utils.sh
+source ./stages/prepare.sh
 
 reattach_chroot() {
   echo "Found existing ${FILESYSTEM} - re-mounting it onto Arkbuild/."
@@ -97,28 +102,42 @@ elif [ -f "${FILESYSTEM}" ]; then
   reattach_chroot
   if [ ! -f "${PREPARED_MARKER}" ]; then
     echo "Re-mounted Arkbuild/ has no prepared marker - running deps + sdl2 once."
-    source ./build_deps.sh
-    source ./build_sdl2.sh
+    source ./stages/build_deps.sh
+    source ./libs/build_sdl2.sh
     sudo touch "${PREPARED_MARKER}"
   else
     echo "Deps + SDL2 already prepared in this chroot - skipping straight to the requested step(s)."
   fi
 else
   echo "No prepared chroot found for ${UNIT} - bootstrapping base system and deps from scratch."
-  source ./setup_partition.sh
-  source ./bootstrap_rootfs.sh
-  source ./build_deps.sh
-  source ./build_sdl2.sh
+  source ./stages/setup_partition.sh
+  source ./stages/bootstrap_rootfs.sh
+  source ./stages/build_deps.sh
+  source ./libs/build_sdl2.sh
   sudo touch "${PREPARED_MARKER}"
 fi
 
+# A step may be given as a path (emulators/build_retroarch.sh) or a bare
+# name (build_retroarch.sh), which is looked up in the step folders.
+STEP_DIRS="stages emulators tools libs"
 for s in ${STEP}; do
-  if [ ! -f "./${s}" ]; then
-    echo "Step script './${s}' not found." >&2
+  step_path=""
+  if [ -f "./${s}" ]; then
+    step_path="./${s}"
+  else
+    for d in ${STEP_DIRS}; do
+      if [ -f "./${d}/${s}" ]; then
+        step_path="./${d}/${s}"
+        break
+      fi
+    done
+  fi
+  if [ -z "${step_path}" ]; then
+    echo "Step script '${s}' not found (searched ./ and ${STEP_DIRS})." >&2
     exit 1
   fi
-  echo "==> Running ${s}"
-  source "./${s}"
+  echo "==> Running ${step_path}"
+  source "${step_path}"
 done
 
 echo "Step(s) complete: ${STEP}"

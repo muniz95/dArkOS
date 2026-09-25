@@ -11,7 +11,7 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8
 
-# 32bit userspace tooling is needed by prepare.sh (premake4 / lib32 bits).
+# 32bit userspace tooling is needed by stages/prepare.sh (premake4 / lib32 bits).
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -58,7 +58,7 @@ RUN dpkg --add-architecture i386 && \
       && \
     rm -rf /var/lib/apt/lists/*
 
-# apt-cacher-ng tuning - same knobs prepare.sh applies on a native host, plus a
+# apt-cacher-ng tuning - same knobs stages/prepare.sh applies on a native host, plus a
 # cache dir we can back with a named volume.
 RUN sed -i \
       -e "/^# *AllowUserPorts:/c\\AllowUserPorts: 0" \

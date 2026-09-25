@@ -1,8 +1,8 @@
 #!/bin/bash
 # ==============================================================================
 # Fetch older Debian library versions for PortMaster compatibility
-# Sourced by finishing_touches.sh and finishing_touches-rk3566.sh
-# Requires: utils.sh (verify_action, call_chroot), BUILD_ARMHF env var
+# Sourced by stages/finishing_touches.sh and stages/finishing_touches-rk3566.sh
+# Requires: common/utils.sh (verify_action, call_chroot), BUILD_ARMHF env var
 # ==============================================================================
 
 install_lib() {

@@ -22,10 +22,26 @@ access to over 64,000 packages you can install via the Debian Advanced Package T
                     In the bottom of the file, add the following line: `$USER ALL=(ALL) NOPASSWD: ALL` \
                     Where $USER is your username on your system. Save and close the sudoers file (if you haven't changed your \
                     default terminal editor (you'll know if you have), press Ctl + x to exit nano and it'll prompt you to save).
-      - Method 2: - Clone this git repo then run `./FreeSudo.sh`.  If there were no errors, it should've completed this change for you. \
+      - Method 2: - Clone this git repo then run `./dev/FreeSudo.sh`.  If there were no errors, it should've completed this change for you. \
                     You can verify this by checking if a `/etc/sudoers.d/$USER` file exists and contains `$USER ALL=(ALL) NOPASSWD: ALL` in it.
      
 Now you should be able to just run make <device_name> to build for a supported device.  Example: `make rg353m`
+
+**Repository layout**
+
+| Folder | Contents |
+|---|---|
+| `devices/` | Per-device entry points (`build_<device>.sh`), run by `make <device_name>` |
+| `stages/` | Image pipeline stages: partitioning, rootfs bootstrap, kernel, base deps, finishing touches, image creation |
+| `emulators/` | Build scripts for standalone emulators and RetroArch |
+| `tools/` | Build scripts for EmulationStation, Kodi, file managers, controller/hotkey tools and other utilities |
+| `libs/` | Build scripts for system libraries (SDL2, ffmpeg, bluez-alsa, wpa_supplicant) |
+| `common/` | Shared shell helpers (`utils.sh`, `chipset_for_unit.sh`) |
+| `lists/` | Package lists, RetroArch core lists and `game_systems.txt` |
+| `dev/` | Developer helpers: `build_step.sh`, dev chroot (`build_devenv.sh`), standalone Kodi packaging, `FreeSudo.sh` |
+| `docker/` | Docker build environment used by `docker-build.sh` |
+
+The remaining top-level folders (`ppsspp/`, `retroarch/`, `scripts/`, `logos/`, ...) hold the configs and assets that the build scripts copy into the image.  All scripts run with the repo root as the working directory.
 
 **Building with Docker (any Linux host)**
 
@@ -54,22 +70,24 @@ If you are not on Ubuntu, or you would rather not install the toolchain and an `
 
 **Debugging a single build step**
 
-Every `build_<device>.sh` is a fixed sequence of `source ./build_*.sh` step
-scripts (kernel, each emulator, EmulationStation, image creation, ...).
+Every `devices/build_<device>.sh` is a fixed sequence of `source` calls to
+step scripts in `stages/`, `emulators/`, `tools/` and `libs/` (kernel, each
+emulator, EmulationStation, image creation, ...).
 Those step scripts are not standalone - they assume `CHIPSET`/`UNIT` are
 exported and that a live `Arkbuild/` chroot already exists. If one step is
 failing (e.g. `build_retroarch.sh`), re-running the entire per-device script
 to reach it is slow and rebuilds a lot of unrelated things first.
 
-`build_step.sh` runs just the prerequisite setup (partitioning, Debian
+`dev/build_step.sh` runs just the prerequisite setup (partitioning, Debian
 bootstrap, base deps, SDL2) once, then sources only the step script(s) you
-name:
+name. A step can be a bare name (looked up in `stages/`, `emulators/`,
+`tools/` and `libs/`) or a path such as `emulators/build_retroarch.sh`:
 
 ```sh
 # First run: bootstraps Arkbuild/, then runs build_retroarch.sh
 ./docker-build.sh step UNIT=rg351p STEP=build_retroarch.sh
 
-# Edit build_retroarch.sh, then just re-run - the chroot is reused
+# Edit emulators/build_retroarch.sh, then just re-run - the chroot is reused
 ./docker-build.sh step UNIT=rg351p STEP=build_retroarch.sh
 
 # Chain a couple of steps if one depends on another
@@ -77,13 +95,13 @@ name:
 ```
 
 Works the same way natively: `UNIT=rg351p STEP=build_retroarch.sh
-./build_step.sh`, or `make step UNIT=rg351p STEP=build_retroarch.sh`.
+./dev/build_step.sh`, or `make step UNIT=rg351p STEP=build_retroarch.sh`.
 
 Reuse across runs: `Arkbuild/` is a loop mount of `ArkOS_File_System.img`.
 Under Docker, every `docker-build.sh step` invocation is a fresh `--rm`
 container, so a mount made inside one run does not carry over into the
 next, even though the `.img` file itself persists in the bind-mounted repo.
-`build_step.sh` accounts for this: if `Arkbuild/` isn't already mounted but
+`dev/build_step.sh` accounts for this: if `Arkbuild/` isn't already mounted but
 `ArkOS_File_System.img` is present, it re-mounts that image (and re-binds
 `/dev /proc /sys`) instead of bootstrapping from scratch, and skips
 deps/SDL2 too once a `.arkbuild_prepared` marker shows they already ran. A
@@ -93,8 +111,8 @@ full re-bootstrap only happens the first time, or after `make clean` /
 Output is logged to `build_step.log` (rotated on each run, same as
 `build.log` for full device builds).
 
-This does **not** produce a flashable image - `finishing_touches.sh`,
-`write_rootfs.sh` and `create_image.sh` are not run. When you're done, tear
+This does **not** produce a flashable image - `stages/finishing_touches.sh`,
+`stages/write_rootfs.sh` and `stages/create_image.sh` are not run. When you're done, tear
 down the chroot with `./docker-build.sh clean` (or `make clean`) before
 starting a fresh `step` or full device build.
 

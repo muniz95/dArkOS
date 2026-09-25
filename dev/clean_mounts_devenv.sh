@@ -1,4 +1,6 @@
 #!/bin/bash
+# Run from the repo root: step scripts, asset dirs and outputs are resolved relative to it
+cd "$(dirname "$(readlink -f "$0")")/.."
 
 function remove_ark_devenv() {
   for m in proc dev/pts dev dev sys

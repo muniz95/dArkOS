@@ -50,7 +50,7 @@ for i in $(seq 0 31); do
   [ -e "/dev/loop${i}" ] || mknod -m 660 "/dev/loop${i}" b 7 "${i}" 2>/dev/null || true
 done
 
-# --- apt-cacher-ng: replaces the systemd service prepare.sh starts natively --
+# --- apt-cacher-ng: replaces the systemd service stages/prepare.sh starts natively --
 if [ "${ENABLE_CACHE:-y}" != "n" ]; then
   install -d -o apt-cacher-ng -g apt-cacher-ng /var/cache/apt-cacher-ng /var/log/apt-cacher-ng /var/run/apt-cacher-ng
   if ! pgrep -x apt-cacher-ng >/dev/null 2>&1; then

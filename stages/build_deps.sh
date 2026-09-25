@@ -15,13 +15,13 @@ fi
 # Install additional needed packages and protect them from autoremove.
 # Collect the whole list first and hand it to install_package in one call,
 # so apt resolves and installs everything in a single run instead of once
-# per package (see install_package in utils.sh).
+# per package (see install_package in common/utils.sh).
 NEEDED_PACKAGES=()
 while read NEEDED_PACKAGE; do
   if [[ ! "$NEEDED_PACKAGE" =~ ^# ]] && [[ -n "$NEEDED_PACKAGE" ]]; then
     NEEDED_PACKAGES+=("${NEEDED_PACKAGE}")
   fi
-done <needed_packages.txt
+done <lists/needed_packages.txt
 install_package $BIT "${NEEDED_PACKAGES[@]}"
 for NEEDED_PACKAGE in "${NEEDED_PACKAGES[@]}"; do
   protect_package $BIT "${NEEDED_PACKAGE}"
@@ -33,7 +33,7 @@ while read NEEDED_DEV_PACKAGE; do
   if [[ ! "$NEEDED_DEV_PACKAGE" =~ ^# ]] && [[ -n "$NEEDED_DEV_PACKAGE" ]]; then
     NEEDED_DEV_PACKAGES+=("${NEEDED_DEV_PACKAGE}")
   fi
-done <needed_dev_packages.txt
+done <lists/needed_dev_packages.txt
 install_package $BIT "${NEEDED_DEV_PACKAGES[@]}"
 #for NEEDED_DEV_PACKAGE in "${NEEDED_DEV_PACKAGES[@]}"; do
 #  protect_package $BIT "${NEEDED_DEV_PACKAGE}"

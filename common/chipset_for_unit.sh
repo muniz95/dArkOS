@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Maps UNIT (device name) to CHIPSET, mirroring the "export CHIPSET=..."
-# line at the top of each build_<device>.sh. Sourced by build_step.sh.
+# line at the top of each devices/build_<device>.sh. Sourced by dev/build_step.sh.
 #
 # Keep in sync with build_<device>.sh if a new device is added or a
 # device's chipset changes.
@@ -14,7 +14,7 @@ case "$UNIT" in
     CHIPSET=rk3566
     ;;
   *)
-    echo "Unknown UNIT '${UNIT}' - add it to chipset_for_unit.sh" >&2
+    echo "Unknown UNIT '${UNIT}' - add it to common/chipset_for_unit.sh" >&2
     exit 1
     ;;
 esac

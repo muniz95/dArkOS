@@ -114,8 +114,8 @@ function setup_arkbuild32() {
     setup_ark_user 32
     sudo mkdir -p Arkbuild32/home/ark
     #sudo chroot Arkbuild32/ umount /proc
-    source build_deps.sh 32
-    source build_sdl2.sh 32
+    source ./stages/build_deps.sh 32
+    source ./libs/build_sdl2.sh 32
     sudo cp -a Arkbuild32/usr/lib/arm-linux-gnueabihf/libSDL2-2.0.so.0.${extension} Arkbuild/usr/lib/arm-linux-gnueabihf/libSDL2-2.0.so.0.${extension}
     sudo chroot Arkbuild/ bash -c "ln -sfv /usr/lib/arm-linux-gnueabihf/libSDL2.so /usr/lib/arm-linux-gnueabihf/libSDL2-2.0.so.0"
     sudo chroot Arkbuild/ bash -c "ln -sfv /usr/lib/arm-linux-gnueabihf/libSDL2-2.0.so.0.${extension} /usr/lib/arm-linux-gnueabihf/libSDL2.so"

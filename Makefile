@@ -30,14 +30,14 @@ a10mini:
 	$(info debian building caching enabled? ${ENABLE_CACHE})
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	@sleep 5
-	./build_a10mini.sh
+	./devices/build_a10mini.sh
 
 g350:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
 	$(info debian building caching enabled? ${ENABLE_CACHE})
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	@sleep 5
-	./build_g350.sh
+	./devices/build_g350.sh
 
 miniloong:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
@@ -45,14 +45,14 @@ miniloong:
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	$(info adding bluetooth support? ${BUILD_BLUEALSA})
 	@sleep 5
-	./build_miniloong.sh
+	./devices/build_miniloong.sh
 
 rgb10:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
 	$(info debian building caching enabled? ${ENABLE_CACHE})
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	@sleep 5
-	./build_rgb10.sh
+	./devices/build_rgb10.sh
 
 rgb20pro:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
@@ -60,7 +60,7 @@ rgb20pro:
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	$(info adding bluetooth support? ${BUILD_BLUEALSA})
 	@sleep 5
-	./build_rgb20pro.sh
+	./devices/build_rgb20pro.sh
 
 rgb30:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
@@ -68,21 +68,21 @@ rgb30:
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	$(info adding bluetooth support? ${BUILD_BLUEALSA})
 	@sleep 5
-	./build_rgb30.sh
+	./devices/build_rgb30.sh
 
 rg351mp:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
 	$(info debian building caching enabled? ${ENABLE_CACHE})
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	@sleep 5
-	./build_rg351mp.sh
+	./devices/build_rg351mp.sh
 
 rg351p:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
 	$(info debian building caching enabled? ${ENABLE_CACHE})
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	@sleep 5
-	./build_rg351p.sh
+	./devices/build_rg351p.sh
 
 rg353m:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
@@ -90,7 +90,7 @@ rg353m:
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	$(info adding bluetooth support? ${BUILD_BLUEALSA})
 	@sleep 5
-	./build_rg353m.sh
+	./devices/build_rg353m.sh
 
 rg353v:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
@@ -98,7 +98,7 @@ rg353v:
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	$(info adding bluetooth support? ${BUILD_BLUEALSA})
 	@sleep 5
-	./build_rg353v.sh
+	./devices/build_rg353v.sh
 
 rg503:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
@@ -106,7 +106,7 @@ rg503:
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	$(info adding bluetooth support? ${BUILD_BLUEALSA})
 	@sleep 5
-	./build_rg503.sh
+	./devices/build_rg503.sh
 
 rk2023:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
@@ -114,25 +114,25 @@ rk2023:
 	$(info adding armhf 32bit userspace? ${BUILD_ARMHF})
 	$(info adding bluetooth support? ${BUILD_BLUEALSA})
 	@sleep 5
-	./build_rk2023.sh
+	./devices/build_rk2023.sh
 
 step:
 	$(info Running build step(s) '$(STEP)' for UNIT=$(UNIT))
 	@[ -n "$(UNIT)" ] || (echo "UNIT is required, e.g. UNIT=rg351p"; exit 1)
 	@[ -n "$(STEP)" ] || (echo "STEP is required, e.g. STEP=build_retroarch.sh"; exit 1)
-	UNIT=$(UNIT) STEP="$(STEP)" ./build_step.sh
+	UNIT=$(UNIT) STEP="$(STEP)" ./dev/build_step.sh
 
 devenv:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
 	$(info debian building caching enabled? ${ENABLE_CACHE})
 	@sleep 5
-	./build_devenv.sh
+	./dev/build_devenv.sh
 
 devenv32:
 	$(info dArkOS will be built using the $(DEBIAN_CODE_NAME) release of Debian.)
 	$(info debian building caching enabled? ${ENABLE_CACHE})
 	@sleep 5
-	./build_devenv.sh 32
+	./dev/build_devenv.sh 32
 
 clean:
 	[ -d "mnt/boot" ] && sudo umount mnt/boot && sudo rm -rf mnt/boot || true
@@ -140,18 +140,18 @@ clean:
 	[ -d "main" ] && sudo rm -rf main || true
 	[ -d "initrd" ] && sudo rm -rf initrd || true
 	[ -f "wget-log" ] && sudo rm -f wget-log* || true
-	source utils.sh && remove_arkbuild && remove_arkbuild32
+	source common/utils.sh && remove_arkbuild && remove_arkbuild32
 	sudo rm -rf Arkbuild Arkbuild32 Arkbuild-final arkos_* main mnt odroidgoA-4.4.y ArkOS_* rg351 wget-*
 	for devlo in $$(losetup -a | grep -F "($$(pwd)/" | cut -d ':' -f 1); do sudo losetup -d "$$devlo" || echo "Skipping $$devlo (still in use)"; done
 	@echo "Done!"
 
 clean_devenv:
-	./clean_mounts_devenv.sh
+	./dev/clean_mounts_devenv.sh
 	sudo rm -rf Ark_devenv/
 	@echo "Done!"
 
 clean_devenv32:
-	./clean_mounts_devenv.sh 32
+	./dev/clean_mounts_devenv.sh 32
 	sudo rm -rf Ark_devenv32/
 	@echo "Done!"
 

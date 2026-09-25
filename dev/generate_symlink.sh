@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Scan from the repo root
+cd "$(dirname "$(readlink -f "$0")")/.."
+
 # --- Defaults (can be overridden by CLI args) ---
 SRC_SUFFIX="353m"
 DST_SUFFIX="rgb20pro"
