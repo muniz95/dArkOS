@@ -5,6 +5,9 @@
 # Requires: common/utils.sh (verify_action, call_chroot), BUILD_ARMHF env var
 # ==============================================================================
 
+COMPATLIBS_CACHE="Arkbuild_package_cache/${CHIPSET}/compatlibs"
+mkdir -p "${COMPATLIBS_CACHE}/aarch64-linux-gnu" "${COMPATLIBS_CACHE}/arm-linux-gnueabihf"
+
 install_lib() {
     local url="$1"
     local lib_name="$2"
@@ -13,30 +16,48 @@ install_lib() {
     echo "Processing $lib_name..."
 
     # --- ARM64 ---
-    local deb_arm64=$(basename "$url")
-    wget -t 3 -T 60 --no-check-certificate "$url"
-    #verify_action
-    dpkg --fsys-tarfile "$deb_arm64" | tar -xO --wildcards "*$wildcard*" > "$lib_name"
-    if [ ! -s "$lib_name" ]; then
-        echo "[Error] Extraction failed for $lib_name"
+    # These are pinned, fixed-version snapshot/security/archive URLs that
+    # never change contents, so once extracted a lib is cached indefinitely
+    # in Arkbuild_package_cache/${CHIPSET}/compatlibs/ and reused on every
+    # later build instead of re-downloading the .deb.
+    local cached_arm64="${COMPATLIBS_CACHE}/aarch64-linux-gnu/${lib_name}"
+    if [ -s "${cached_arm64}" ]; then
+        echo "Using cached ${lib_name} (arm64)"
+    else
+        local deb_arm64=$(basename "$url")
+        wget -t 3 -T 60 --no-check-certificate "$url"
+        #verify_action
+        dpkg --fsys-tarfile "$deb_arm64" | tar -xO --wildcards "*$wildcard*" > "$lib_name"
+        if [ ! -s "$lib_name" ]; then
+            echo "[Error] Extraction failed for $lib_name"
+        else
+            mv -f "$lib_name" "${cached_arm64}"
+        fi
+        rm -f "$deb_arm64" "$lib_name"
     fi
-    sudo mv -f "$lib_name" Arkbuild/usr/lib/aarch64-linux-gnu/
+    sudo cp -f "${cached_arm64}" Arkbuild/usr/lib/aarch64-linux-gnu/"$lib_name"
     call_chroot "chown root:root /usr/lib/aarch64-linux-gnu/$lib_name"
-    rm -f "$deb_arm64"
 
     # --- ARMHF ---
     if [[ "${BUILD_ARMHF}" == "y" ]]; then
-        local url_armhf="${url//_arm64/_armhf}"
-        local deb_armhf=$(basename "$url_armhf")
-        wget -t 3 -T 60 --no-check-certificate "$url_armhf"
-        #verify_action
-        dpkg --fsys-tarfile "$deb_armhf" | tar -xO --wildcards "*$wildcard*" > "$lib_name"
-        if [ ! -s "$lib_name" ]; then
-            echo "[Error] Extraction failed for $lib_name (armhf)"
+        local cached_armhf="${COMPATLIBS_CACHE}/arm-linux-gnueabihf/${lib_name}"
+        if [ -s "${cached_armhf}" ]; then
+            echo "Using cached ${lib_name} (armhf)"
+        else
+            local url_armhf="${url//_arm64/_armhf}"
+            local deb_armhf=$(basename "$url_armhf")
+            wget -t 3 -T 60 --no-check-certificate "$url_armhf"
+            #verify_action
+            dpkg --fsys-tarfile "$deb_armhf" | tar -xO --wildcards "*$wildcard*" > "$lib_name"
+            if [ ! -s "$lib_name" ]; then
+                echo "[Error] Extraction failed for $lib_name (armhf)"
+            else
+                mv -f "$lib_name" "${cached_armhf}"
+            fi
+            rm -f "$deb_armhf" "$lib_name"
         fi
-        sudo mv -f "$lib_name" Arkbuild/usr/lib/arm-linux-gnueabihf/
+        sudo cp -f "${cached_armhf}" Arkbuild/usr/lib/arm-linux-gnueabihf/"$lib_name"
         call_chroot "chown root:root /usr/lib/arm-linux-gnueabihf/$lib_name"
-        rm -f "$deb_armhf"
     fi
 }
 

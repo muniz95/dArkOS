@@ -271,7 +271,7 @@ sudo cp system/scripts/arkos_ap_mode.sh Arkbuild/usr/local/bin/
 sudo cp system/scripts/auto_suspend* Arkbuild/usr/local/bin/
 sudo cp system/scripts/processcheck.sh Arkbuild/usr/local/bin/
 sudo cp system/scripts/autosuspend.service Arkbuild/etc/systemd/system/
-sudo chroot Arkbuild/ bash -c "pip install --break-system-packages --root-user-action ignore inputs"
+sudo chroot Arkbuild/ bash -c "pip show inputs &>/dev/null || pip install --break-system-packages --root-user-action ignore inputs"
 sudo chroot Arkbuild/ bash -c "systemctl disable autosuspend"
 sudo cp system/scripts/rk3566/shutdowntasks.service Arkbuild/etc/systemd/system/
 sudo chroot Arkbuild/ bash -c "(crontab -l 2>/dev/null; echo \"@reboot /usr/local/bin/panel_set.sh RestoreSettings &\") | crontab -"
@@ -408,25 +408,40 @@ fi
 # Set the ownver of the ark folder and all sub content to ark
 sudo chroot Arkbuild/ bash -c "chown -R ark:ark /home/ark"
 
-# Clone some themes to the tempthemes folder
+# Clone some themes to the tempthemes folder.
+# Themes are cached once in Arkbuild_package_cache/themes/<repo> (a shallow
+# git clone) and copied from there on every later build instead of hitting
+# the network again. Delete a subfolder there to pick up upstream updates.
+THEMES_CACHE="Arkbuild_package_cache/themes"
+mkdir -p "${THEMES_CACHE}"
+clone_theme() {
+  local repo_url="$1"
+  local repo_name="$(basename "$repo_url" .git)"
+  local dest="$2"
+  if [ ! -d "${THEMES_CACHE}/${repo_name}/.git" ]; then
+    git clone --depth=1 "$repo_url" "${THEMES_CACHE}/${repo_name}"
+  fi
+  sudo cp -a "${THEMES_CACHE}/${repo_name}" "$dest"
+}
+
 sudo mkdir Arkbuild/tempthemes
 if [ "$UNIT" == "rgb30" ]; then
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-freeplay.git Arkbuild/tempthemes/es-theme-freeplay
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-sagabox.git Arkbuild/tempthemes/es-theme-sagabox
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-switch.git Arkbuild/tempthemes/es-theme-switch
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-simply-basic.git Arkbuild/tempthemes/es-theme-simply-basic
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-sagamodern.git Arkbuild/tempthemes/es-theme-sagamodern
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-saganx.git Arkbuild/tempthemes/es-theme-saganx
-  sudo git clone --depth=1 https://github.com/dani7959/es-theme-replica.git Arkbuild/tempthemes/es-theme-replica
+  clone_theme https://github.com/Jetup13/es-theme-freeplay.git Arkbuild/tempthemes/es-theme-freeplay
+  clone_theme https://github.com/Jetup13/es-theme-sagabox.git Arkbuild/tempthemes/es-theme-sagabox
+  clone_theme https://github.com/Jetup13/es-theme-switch.git Arkbuild/tempthemes/es-theme-switch
+  clone_theme https://github.com/Jetup13/es-theme-simply-basic.git Arkbuild/tempthemes/es-theme-simply-basic
+  clone_theme https://github.com/Jetup13/es-theme-sagamodern.git Arkbuild/tempthemes/es-theme-sagamodern
+  clone_theme https://github.com/Jetup13/es-theme-saganx.git Arkbuild/tempthemes/es-theme-saganx
+  clone_theme https://github.com/dani7959/es-theme-replica.git Arkbuild/tempthemes/es-theme-replica
 else
   if [[ "$UNIT" == *"rgb10"* ]] || [[ "$UNIT" == "rk2020" ]] || [[ "$UNIT" == *"oga"* ]]; then
-    sudo git clone --depth=1 https://github.com/pix33l/es-theme-pixui.git
+    clone_theme https://github.com/pix33l/es-theme-pixui.git es-theme-pixui
   fi
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-freeplay.git Arkbuild/tempthemes/es-theme-freeplay
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-minimal-arkos.git Arkbuild/tempthemes/es-theme-minimal-arkos
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-nes-box.git Arkbuild/tempthemes/es-theme-nes-box
-  sudo git clone --depth=1 https://github.com/Jetup13/es-theme-switch.git Arkbuild/tempthemes/es-theme-switch
-  sudo git clone --depth=1 https://github.com/dani7959/es-theme-replica.git Arkbuild/tempthemes/es-theme-replica
+  clone_theme https://github.com/Jetup13/es-theme-freeplay.git Arkbuild/tempthemes/es-theme-freeplay
+  clone_theme https://github.com/Jetup13/es-theme-minimal-arkos.git Arkbuild/tempthemes/es-theme-minimal-arkos
+  clone_theme https://github.com/Jetup13/es-theme-nes-box.git Arkbuild/tempthemes/es-theme-nes-box
+  clone_theme https://github.com/Jetup13/es-theme-switch.git Arkbuild/tempthemes/es-theme-switch
+  clone_theme https://github.com/dani7959/es-theme-replica.git Arkbuild/tempthemes/es-theme-replica
 fi
 
 sync
@@ -448,28 +463,49 @@ do
   sudo mkdir -p ${fat32_mountpoint}/${extra_dir}
 done
 
-# Add latest version of PortMaster install to roms/tools folder
-for (( ; ; ))
-do
- PMver=$(curl --silent -qI https://github.com/PortsMaster/PortMaster-GUI/releases/latest | awk -F '/' '/^location/ {print  substr($NF, 1, length($NF)-1)}')
- wget -t 3 -T 60 --no-check-certificate https://github.com/PortsMaster/PortMaster-GUI/releases/download/${PMver}/Install.PortMaster.sh
- if [ $? == 0 ]; then
-  break
- fi
- sleep 10
-done
+# Add latest version of PortMaster install to roms/tools folder.
+# Cached by resolved release tag in Arkbuild_package_cache/portmaster/, so a
+# same-day rebuild copies the installer locally instead of re-downloading it.
+PORTMASTER_CACHE="Arkbuild_package_cache/portmaster"
+mkdir -p "${PORTMASTER_CACHE}"
+PMver=$(curl --silent -qI https://github.com/PortsMaster/PortMaster-GUI/releases/latest | awk -F '/' '/^location/ {print  substr($NF, 1, length($NF)-1)}')
+if [ -n "$PMver" ] && [ -s "${PORTMASTER_CACHE}/Install.PortMaster.${PMver}.sh" ]; then
+  echo "Using cached PortMaster installer ${PMver}"
+  cp -f "${PORTMASTER_CACHE}/Install.PortMaster.${PMver}.sh" Install.PortMaster.sh
+else
+  for (( ; ; ))
+  do
+   PMver=$(curl --silent -qI https://github.com/PortsMaster/PortMaster-GUI/releases/latest | awk -F '/' '/^location/ {print  substr($NF, 1, length($NF)-1)}')
+   wget -t 3 -T 60 --no-check-certificate https://github.com/PortsMaster/PortMaster-GUI/releases/download/${PMver}/Install.PortMaster.sh
+   if [ $? == 0 ]; then
+    break
+   fi
+   sleep 10
+  done
+  cp -f Install.PortMaster.sh "${PORTMASTER_CACHE}/Install.PortMaster.${PMver}.sh"
+fi
 sudo mv -f Install.PortMaster.sh ${fat32_mountpoint}/tools/Install.PortMaster.sh
 chmod 777 ${fat32_mountpoint}/tools/Install.PortMaster.sh
 
-# Add latest version of ThemeMaster to roms/tools folder
-for (( ; ; ))
-do
- wget -t 3 -T 60 --no-check-certificate https://github.com/JohnIrvine1433/ThemeMaster/archive/refs/heads/master.zip
- if [ $? == 0 ]; then
-  break
- fi
- sleep 10
-done
+# Add latest version of ThemeMaster to roms/tools folder.
+# No version tag is exposed for this one (plain master.zip), so cache it by
+# age instead - skip re-downloading if the cached copy is less than a week
+# old, otherwise refresh it.
+THEMEMASTER_CACHE="Arkbuild_package_cache/thememaster.zip"
+if [ -s "${THEMEMASTER_CACHE}" ] && [ -z "$(find "${THEMEMASTER_CACHE}" -mtime +7)" ]; then
+  echo "Using cached ThemeMaster (less than 7 days old)"
+  cp -f "${THEMEMASTER_CACHE}" master.zip
+else
+  for (( ; ; ))
+  do
+   wget -t 3 -T 60 --no-check-certificate https://github.com/JohnIrvine1433/ThemeMaster/archive/refs/heads/master.zip
+   if [ $? == 0 ]; then
+    break
+   fi
+   sleep 10
+  done
+  cp -f master.zip "${THEMEMASTER_CACHE}"
+fi
 sudo unzip -X -o master.zip -d ${fat32_mountpoint}/tools/
 sudo rm -rf ${fat32_mountpoint}/tools/ThemeMaster
 sudo mv -f ${fat32_mountpoint}/tools/ThemeMaster-master/ThemeMaster ${fat32_mountpoint}/tools/
@@ -477,13 +513,25 @@ sudo mv -f ${fat32_mountpoint}/tools/ThemeMaster-master/ThemeMaster.sh ${fat32_m
 sudo rm -rf ${fat32_mountpoint}/tools/ThemeMaster-master/
 rm -f master.zip
 
-# Get some sample pico-8 games
+# Get some sample pico-8 games.
+# These are static demo files that never change server-side, so cache them
+# unconditionally in Arkbuild_package_cache/pico-8/.
+PICO8_CACHE="Arkbuild_package_cache/pico-8"
+mkdir -p "${PICO8_CACHE}"
 sudo rm -rf /roms/pico-8/carts/*
-sudo wget -t 3 -T 60 --no-check-certificate https://www.lexaloffle.com/bbs/cposts/1/15133.p8.png -O ${fat32_mountpoint}/pico-8/carts/celeste.p8.png
-sudo wget -t 3 -T 60 --no-check-certificate https://www.lexaloffle.com/bbs/cposts/sc/scrap_boy-6.p8.png -O ${fat32_mountpoint}/pico-8/carts/scrap_boy-6.p8.png
-sudo wget -t 3 -T 60 --no-check-certificate https://www.lexaloffle.com/bbs/cposts/di/dinkykong-0.p8.png -O ${fat32_mountpoint}/pico-8/carts/dinkykong-0.p8.png
-sudo wget -t 3 -T 60 --no-check-certificate https://www.lexaloffle.com/bbs/cposts/po/poom_0-9.p8.png -O ${fat32_mountpoint}/pico-8/carts/poom_0-9.p8.png
-sudo wget -t 3 -T 60 --no-check-certificate https://www.lexaloffle.com/bbs/cposts/ch/cherrybomb-0.p8.png -O ${fat32_mountpoint}/pico-8/carts/cherrybomb-0.p8.png
+fetch_pico8_cart() {
+  local url="$1"
+  local cart_name="$2"
+  if [ ! -s "${PICO8_CACHE}/${cart_name}" ]; then
+    sudo wget -t 3 -T 60 --no-check-certificate "$url" -O "${PICO8_CACHE}/${cart_name}"
+  fi
+  sudo cp -f "${PICO8_CACHE}/${cart_name}" "${fat32_mountpoint}/pico-8/carts/${cart_name}"
+}
+fetch_pico8_cart https://www.lexaloffle.com/bbs/cposts/1/15133.p8.png celeste.p8.png
+fetch_pico8_cart https://www.lexaloffle.com/bbs/cposts/sc/scrap_boy-6.p8.png scrap_boy-6.p8.png
+fetch_pico8_cart https://www.lexaloffle.com/bbs/cposts/di/dinkykong-0.p8.png dinkykong-0.p8.png
+fetch_pico8_cart https://www.lexaloffle.com/bbs/cposts/po/poom_0-9.p8.png poom_0-9.p8.png
+fetch_pico8_cart https://www.lexaloffle.com/bbs/cposts/ch/cherrybomb-0.p8.png cherrybomb-0.p8.png
 
 # Copy default game launch images
 sudo cp system/launchimages/loading.ascii.${UNIT} ${fat32_mountpoint}/launchimages/loading.ascii
@@ -499,7 +547,7 @@ sudo cp -a emulators/hypseus-singe/scripts/Scan* ${fat32_mountpoint}/alg/
 sudo cp -a emulators/scummvm/scripts/menu.scummvm ${fat32_mountpoint}/scummvm/
 
 # Clone some themes to the roms/themes folder
-sudo git clone --depth=1 https://github.com/Jetup13/es-theme-nes-box.git ${fat32_mountpoint}/themes/es-theme-nes-box
+clone_theme https://github.com/Jetup13/es-theme-nes-box.git ${fat32_mountpoint}/themes/es-theme-nes-box
 sync
 
 # Create roms.tar for use after exfat partition creation
