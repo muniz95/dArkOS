@@ -223,7 +223,7 @@ if [[ "${BUILD_ARMHF}" == "y" ]]; then
 		sudo mkdir -p Arkbuild/home/ark/.config/retroarch32/filters/video
 		sudo mkdir -p Arkbuild/home/ark/.config/retroarch32/filters/audio
 		sudo mkdir -p Arkbuild/home/ark/.config/retroarch32/autoconfig/udev
-		if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rk2020" ]; then
+		if [ "$UNIT" == "rgb10" ] || [ "$UNIT" == "rk2020" ] || [ "$UNIT" == "rg351p" ]; then
 		  sudo cp Arkbuild32/home/ark/${CHIPSET}_core_builds/retroarch32/retroarch32.${CHIPSET}.rot Arkbuild/opt/retroarch/bin/retroarch32
 		elif [ "$UNIT" == "miniloong" ]; then
 		  sudo cp Arkbuild32/home/ark/${CHIPSET}_core_builds/retroarch32/retroarch32-rgarotated Arkbuild/opt/retroarch/bin/retroarch32
