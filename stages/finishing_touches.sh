@@ -265,6 +265,10 @@ elif [[ "$UNIT" == "rg351mp" ]] || [[ "$UNIT" == "g350" ]] || [[ "$UNIT" == "a10
   fi
   sudo cp system/device/rg351mp/*.service Arkbuild/etc/systemd/system/
   sudo chroot Arkbuild/ bash -c "systemctl enable 351mp batt_led"
+elif [[ "$UNIT" == "rg351p" ]]; then
+  sudo cp system/device/rg351p/enable_rumble Arkbuild/usr/local/bin/
+  sudo cp system/device/rg351p/*.service Arkbuild/etc/systemd/system/
+  sudo chroot Arkbuild/ bash -c "systemctl enable rg351p"
 fi
 if [[ "$UNIT" == "g350" ]]; then
   sudo cp system/scripts/g350/*.sh Arkbuild/usr/local/bin/

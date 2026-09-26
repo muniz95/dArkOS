@@ -1,0 +1,13 @@
+[Unit]
+Description=RG351P Fixes
+DefaultDependencies=no
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/bin/enable_rumble
+Restart=no
+
+[Install]
+WantedBy=sysinit.target
