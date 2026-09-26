@@ -1,0 +1,5 @@
+# The RG351P's built-in controls are a USB HID pad (OpenSimHardware OSH PB Controller).
+# It also reports keyboard keys, so udev's input_id heuristic (systemd >= 246) labels it a
+# keyboard instead of a joystick, which hides it from SDL/EmulationStation. Force it back.
+# Must sort after 60-input-id.rules and before 60-persistent-input.rules.
+ACTION!="remove", SUBSYSTEM=="input", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="3100", ENV{ID_INPUT_JOYSTICK}="1", ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""

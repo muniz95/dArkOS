@@ -269,6 +269,7 @@ elif [[ "$UNIT" == "rg351p" ]]; then
   sudo cp system/device/rg351p/enable_rumble Arkbuild/usr/local/bin/
   sudo cp system/device/rg351p/*.service Arkbuild/etc/systemd/system/
   sudo chroot Arkbuild/ bash -c "systemctl enable rg351p"
+  sudo cp system/device/rg351p/*.rules Arkbuild/etc/udev/rules.d/
 fi
 if [[ "$UNIT" == "g350" ]]; then
   sudo cp system/scripts/g350/*.sh Arkbuild/usr/local/bin/
