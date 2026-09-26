@@ -45,6 +45,12 @@ then
   width="70"
 fi
 
+# The --menu widget's list height must be smaller than the outer box height
+# $height, to leave room for the backtitle, title, prompt text, borders and
+# button row — passing the same value for both (as this used to do) leaves
+# dialog with no room to draw and it fails outright ("Can't make new window").
+menu_height=$((height - 6))
+
 export TERM=linux
 export XDG_RUNTIME_DIR=/run/user/$UID/
 
@@ -133,7 +139,7 @@ Activate() {
    	--no-collapse \
    	--clear \
 	--cancel-label "Back" \
-    --menu "" $height $width 15)
+    --menu "" $height $width $menu_height)
 
     achoice=$("${aselection[@]}" "${aoptions[@]}" 2>&1 > /dev/tty1) || MainMenu
 	if [[ $? != 0 ]]; then
@@ -260,7 +266,7 @@ Connect() {
    	--no-collapse \
    	--clear \
 	--cancel-label "Back" \
-    --menu "" $height $width 15)
+    --menu "" $height $width $menu_height)
 
     cchoices=$("${cselection[@]}" "${coptions[@]}" 2>&1 > /dev/tty1) || MainMenu
 	if [[ $? != 0 ]]; then
@@ -294,7 +300,7 @@ Delete() {
    	--no-collapse \
    	--clear \
 	--cancel-label "Back" \
-    --menu "" $height $width 15)
+    --menu "" $height $width $menu_height)
 
     # There is only a single choice possible
     delchoice=$("${delselection[@]}" "${deloptions[@]}" 2>&1 > /dev/tty1) || MainMenu
@@ -360,7 +366,7 @@ MainMenu() {
    	--no-collapse \
    	--clear \
 	--cancel-label "${HOTKEY} + Start to Exit" \
-    --menu "Please make your selection" $height $width 15)
+    --menu "Please make your selection" $height $width $menu_height)
 	
 	mainchoices=$("${mainselection[@]}" "${mainoptions[@]}" 2>&1 > /dev/tty1)
 	if [[ $? != 0 ]]; then

@@ -1,9 +1,19 @@
 #!/bin/bash
 
+# Wait for /opt/system/Tools to exist before looking for a keyfile in it —
+# on some boots this service can start before that mount/directory is ready,
+# which previously made the `find` below return nothing and silently skip
+# the whole import with no message (find's own error went to stderr, which
+# is not visible when this runs headless via systemd).
+for i in 1 2 3 4 5; do
+	[ -d /opt/system/Tools ] && break
+	sleep 1
+done
 
-if [[ -f $(find /opt/system/Tools -maxdepth 1 -iname wifikeyfile.txt) ]]; then
+keyfile=$(find /opt/system/Tools -maxdepth 1 -iname wifikeyfile.txt 2>/dev/null)
 
-	keyfile=`find /opt/system/Tools -maxdepth 1 -iname wifikeyfile.txt`
+if [[ -n "$keyfile" ]] && [[ -f "$keyfile" ]]; then
+
 	keyfile_base=`basename $keyfile`
 	sudo chmod 666 /dev/tty1
 	export TERM=linux
@@ -53,7 +63,12 @@ if [[ -f $(find /opt/system/Tools -maxdepth 1 -iname wifikeyfile.txt) ]]; then
 	if [[ -z $(iw dev wlan0 info | tr -d '\0') ]]; then
 	  dialog --infobox "Waiting for wifi adapter to be enabled.  Please wait..." 5 $width > /dev/tty1
 	  printf "Waiting for wifi adapter to be enabled.  Please wait..."
-	  sleep 10
+	  # USB wifi dongles can take longer than built-in chips to enumerate and
+	  # bind their driver, so poll for a while instead of one fixed 10s wait.
+	  for i in $(seq 1 15); do
+	    sleep 1
+	    [[ -n $(iw dev wlan0 info | tr -d '\0') ]] && break
+	  done
 	  if [[ -z $(iw dev wlan0 info | tr -d '\0') ]]; then
 	    dialog --infobox "There isn't a compatible wifi adapter connected.  Please plug in a compatible wifi adapter then reboot so importing of your wifi credentials can be completed." 5 $width > /dev/tty1
 	    sleep 10
